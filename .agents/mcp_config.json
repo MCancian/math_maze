@@ -6,7 +6,10 @@
         "-y",
         "@tugcantopaloglu/godot-mcp"
       ],
-      "env": {}
+      "env": {
+        "GODOT_PATH": "/var/home/qyfs/.local/bin/godot",
+        "DEBUG": "true"
+      }
     }
   }
 }

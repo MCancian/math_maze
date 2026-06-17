@@ -8,8 +8,9 @@ radius = 1.0
 height = 2.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shadow"]
-albedo_color = Color(0.02, 0.015, 0.03, 1)
+albedo_color = Color(0.02, 0.015, 0.03, 0.68)
 roughness = 0.9
+transparency = 1
 emission_enabled = true
 emission = Color(0.01, 0, 0.02, 1)
 emission_energy_multiplier = 0.25
@@ -49,17 +50,17 @@ mesh = SubResource("CapsuleMesh_shadow")
 material_override = SubResource("StandardMaterial3D_shadow")
 
 [node name="LeftEye" type="MeshInstance3D" parent="Visual/Shadow"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, 1.35, -0.78)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, 1.35, 0.78)
 mesh = SubResource("SphereMesh_eye")
 material_override = SubResource("StandardMaterial3D_eye")
 
 [node name="RightEye" type="MeshInstance3D" parent="Visual/Shadow"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, 1.35, -0.78)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, 1.35, 0.78)
 mesh = SubResource("SphereMesh_eye")
 material_override = SubResource("StandardMaterial3D_eye")
 
 [node name="EyeLight" type="OmniLight3D" parent="Visual/Shadow"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, -0.75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0.75)
 light_color = Color(1, 0, 0, 1)
 light_energy = 1.2
 omni_range = 4.0

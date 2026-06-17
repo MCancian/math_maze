@@ -12,6 +12,7 @@ signature, it's stale; fix or delete it.
 | [save-format.md](technical/save-format.md) | `user://save.json`, 3-slot profiles, unlocks, stars |
 | [maze-gen.md](technical/maze-gen.md) | Seeded maze generation + level building (hybrid data) |
 | [difficulty.md](technical/difficulty.md) | Independent math + maze difficulty configs |
+| [testing.md](technical/testing.md) | Headless test suite and test locations |
 
 ## Other
 

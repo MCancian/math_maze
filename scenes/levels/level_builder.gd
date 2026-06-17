@@ -42,9 +42,12 @@ static func build(root: Node3D, info: Dictionary, maze_cfg: MazeConfig, set_piec
                     b.material = wall_mat
                 walls.add_child(b)
 
-    # Door at the exit (farthest dead-end)
+    # Door set into the outer wall at the carved opening, thin axis aligned to the wall.
     var door := DOOR.instantiate()
-    door.position = _cell_world(info["exit"], w, h, 0.0)
+    var opening: Vector2i = info["exit_opening"]
+    door.position = _grid_world(opening.x, opening.y, w, h, 0.0)
+    if info["exit_dir"].x != 0:
+        door.rotation.y = PI / 2.0   # east/west wall: rotate thin (Z) axis onto X
     root.add_child(door)
 
     # Key spots: prefer dead-ends (tucked away), then fall back to the farthest

@@ -1,6 +1,10 @@
 # Door Wall Placement
 
-**Status:** 🔜 Future (bug fix)
+**Status:** ✅ Implemented (2026-06-16)
+
+**Shipped:** Moved exit to outer wall and rotated door thin axis flush with it.
+- `MazeGen.generate` (`scenes/levels/maze_gen.gd`): added `exit_cell`, `exit_dir`, and `exit_opening` logic to perimeter carving.
+- `LevelBuilder.build` (`scenes/levels/level_builder.gd`): placed `door` at `exit_opening` and aligned rotation.
 
 On generated levels the exit door appears free-standing in the middle of an open area
 instead of set into a wall, so it doesn't read as "the way out." This plan makes the

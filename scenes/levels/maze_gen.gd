@@ -86,6 +86,36 @@ static func generate(n: int, seed_val: int, braid: float = 0.0) -> Dictionary:
 					far = nb
 				queue.append(nb)
 
+	# Exit = farthest PERIMETER cell from the entrance, so the door can sit in an
+	# outer wall. (far stays a fallback for tiny mazes with no other perimeter cell.)
+	var exit_cell := far
+	var best := -1
+	for cell in dist.keys():
+		if cell == start:
+			continue
+		var on_perimeter: bool = cell.x == 0 or cell.x == n - 1 or cell.y == 0 or cell.y == n - 1
+		if on_perimeter and dist[cell] > best:
+			best = dist[cell]
+			exit_cell = cell
+
+	# Outward normal of the edge the exit cell touches (x-edges win on a corner).
+	var exit_dir := Vector2i.ZERO
+	if exit_cell.x == 0:
+		exit_dir = Vector2i(-1, 0)
+	elif exit_cell.x == n - 1:
+		exit_dir = Vector2i(1, 0)
+	elif exit_cell.y == 0:
+		exit_dir = Vector2i(0, -1)
+	elif exit_cell.y == n - 1:
+		exit_dir = Vector2i(0, 1)
+
+	# Carve the border wall just outside the exit cell so the door isn't buried
+	# behind a solid border wall — gives a continuous passage out through the door.
+	var open_gx: int = 2 * exit_cell.x + 1 + exit_dir.x
+	var open_gy: int = 2 * exit_cell.y + 1 + exit_dir.y
+	if exit_dir != Vector2i.ZERO:
+		grid[open_gy][open_gx] = 0
+
 	var deadends: Array[Vector2i] = []
 	for cell in links.keys():
 		if links[cell].size() == 1 and cell != start:
@@ -93,5 +123,7 @@ static func generate(n: int, seed_val: int, braid: float = 0.0) -> Dictionary:
 
 	return {
 		"grid": grid, "w": w, "h": h, "n": n,
-		"entrance": start, "exit": far, "deadends": deadends, "dist": dist,
+		"entrance": start, "exit": exit_cell,
+		"exit_dir": exit_dir, "exit_opening": Vector2i(open_gx, open_gy),
+		"deadends": deadends, "dist": dist,
 	}

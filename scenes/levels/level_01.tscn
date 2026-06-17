@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://materials/floor_material.tres" id="1_5vw27"]
+[ext_resource type="PackedScene" path="res://scenes/actors/player.tscn" id="1_7mycd"]
+[ext_resource type="Script" path="res://scenes/actors/player.gd" id="2_272bh"]
+[ext_resource type="Material" path="res://materials/wall_material.tres" id="2_kek77"]
+[ext_resource type="PackedScene" path="res://scenes/actors/key.tscn" id="3_5vw27"]
+[ext_resource type="Script" path="res://scenes/actors/key.gd" id="4_kek77"]
+[ext_resource type="PackedScene" path="res://scenes/actors/door.tscn" id="5_4c57u"]
+[ext_resource type="Script" path="res://scenes/actors/door.gd" id="6_efxa6"]
+[ext_resource type="Script" path="res://scenes/levels/level_root.gd" id="7_root"]
+
+[sub_resource type="Environment" id="Environment_dg77c"]
+background_mode = 1
+background_color = Color(0.05, 0.05, 0.1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="Main" type="Node3D" unique_id=424233518]
+script = ExtResource("7_root")
+
+[node name="@WorldEnvironment@3" type="WorldEnvironment" parent="." unique_id=1389716385]
+environment = SubResource("Environment_dg77c")
+
+[node name="Floor" type="CSGBox3D" parent="." unique_id=1190389402]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(50, 1, 50)
+material = ExtResource("1_5vw27")
+
+[node name="Walls" type="Node3D" parent="." unique_id=211923274]
+
+[node name="@CSGBox3D@4" type="CSGBox3D" parent="Walls" unique_id=1542398788]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, -5)
+use_collision = true
+size = Vector3(1, 3, 20)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@5" type="CSGBox3D" parent="Walls" unique_id=1934516165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1.5, -5)
+use_collision = true
+size = Vector3(1, 3, 20)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@6" type="CSGBox3D" parent="Walls" unique_id=1183505036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+use_collision = true
+size = Vector3(5, 3, 1)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@7" type="CSGBox3D" parent="Walls" unique_id=497023414]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -17)
+use_collision = true
+size = Vector3(30, 3, 1)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@8" type="CSGBox3D" parent="Walls" unique_id=526982715]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.5, 1.5, -13)
+use_collision = true
+size = Vector3(14, 3, 1)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@9" type="CSGBox3D" parent="Walls" unique_id=714699305]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 1.5, -13)
+use_collision = true
+size = Vector3(14, 3, 1)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@10" type="CSGBox3D" parent="Walls" unique_id=1285919945]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17, 1.5, -15)
+use_collision = true
+size = Vector3(1, 3, 5)
+material = ExtResource("2_kek77")
+
+[node name="@CSGBox3D@11" type="CSGBox3D" parent="Walls" unique_id=534618951]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 1.5, -15)
+use_collision = true
+size = Vector3(1, 3, 5)
+material = ExtResource("2_kek77")
+
+[node name="@OmniLight3D@12" type="OmniLight3D" parent="." unique_id=1173709690]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -5)
+light_color = Color(1, 0.6, 0.2, 1)
+light_energy = 2.0
+shadow_enabled = true
+omni_range = 10.0
+
+[node name="@OmniLight3D@13" type="OmniLight3D" parent="." unique_id=1897169044]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 2, -15)
+light_color = Color(0.2, 0.6, 1, 1)
+light_energy = 2.0
+shadow_enabled = true
+omni_range = 10.0
+
+[node name="@OmniLight3D@14" type="OmniLight3D" parent="." unique_id=1831505579]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, -15)
+light_color = Color(1, 0.2, 0.2, 1)
+light_energy = 2.0
+shadow_enabled = true
+omni_range = 10.0
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=1286297715 instance=ExtResource("1_7mycd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("2_272bh")
+
+[node name="Key" type="Area3D" parent="." unique_id=566262639 instance=ExtResource("3_5vw27")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 1, -15)
+script = ExtResource("4_kek77")
+
+[node name="Door" type="Area3D" parent="." unique_id=1134377992 instance=ExtResource("5_4c57u")]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 14, 0, -15)
+script = ExtResource("6_efxa6")

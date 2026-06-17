@@ -1,0 +1,11 @@
+# Godot 4 editor cache / imported resources
+.godot/
+
+# Godot exports
+export_presets.cfg
+*.translation
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*~

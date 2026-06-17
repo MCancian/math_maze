@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/levels/level_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"gen_02"
+display_name = "Level 2"
+unlock_order = 2
+maze_seed = 4242

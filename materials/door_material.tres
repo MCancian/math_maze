@@ -1,0 +1,16 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://textures/wall_diffuse.jpg" id="1_door_d"]
+[ext_resource type="Texture2D" path="res://textures/wall_nor_gl.jpg" id="2_door_n"]
+[ext_resource type="Texture2D" path="res://textures/wall_rough.jpg" id="3_door_r"]
+
+[resource]
+albedo_color = Color(0.55, 0.31, 0.13, 1)
+albedo_texture = ExtResource("1_door_d")
+metallic = 0.15
+metallic_specular = 0.3
+roughness = 0.8
+roughness_texture = ExtResource("3_door_r")
+normal_enabled = true
+normal_texture = ExtResource("2_door_n")
+uv1_scale = Vector3(1, 2, 1)

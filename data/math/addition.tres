@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MathConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/math/math_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Addition"
+mode = 0
+max_digit = 9
+fraction_denoms = Array[int]([2, 3, 4])

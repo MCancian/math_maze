@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://textures/wall_diffuse.jpg" id="1_xvgh1"]
+[ext_resource type="Texture2D" path="res://textures/wall_nor_gl.jpg" id="2_kbpi2"]
+[ext_resource type="Texture2D" path="res://textures/wall_rough.jpg" id="3_w7pr5"]
+
+[resource]
+albedo_texture = ExtResource("1_xvgh1")
+roughness_texture = ExtResource("3_w7pr5")
+normal_enabled = true
+normal_texture = ExtResource("2_kbpi2")
+uv1_triplanar = true

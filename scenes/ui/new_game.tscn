@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/new_game.gd" id="1_new"]
+
+[sub_resource type="ButtonGroup" id="SlotGroup"]
+
+[node name="NewGame" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_new")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -180.0
+offset_right = 220.0
+offset_bottom = 180.0
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "New Game"
+horizontal_alignment = 1
+
+[node name="NameLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Name"
+horizontal_alignment = 1
+
+[node name="NameEdit" type="LineEdit" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+max_length = 12
+placeholder_text = "Enter name"
+
+[node name="SlotLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Save Slot"
+horizontal_alignment = 1
+
+[node name="SlotRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Slot0" type="Button" parent="VBox/SlotRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("SlotGroup")
+text = "Slot 1"
+
+[node name="Slot1" type="Button" parent="VBox/SlotRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("SlotGroup")
+text = "Slot 2"
+
+[node name="Slot2" type="Button" parent="VBox/SlotRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("SlotGroup")
+text = "Slot 3"
+
+[node name="NextButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+disabled = true
+text = "Next"
+
+[node name="BackButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Back"

@@ -1,0 +1,109 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/difficulty_select.gd" id="1_diff"]
+
+[sub_resource type="ButtonGroup" id="MathGroup"]
+
+[sub_resource type="ButtonGroup" id="MazeGroup"]
+
+[node name="DifficultySelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_diff")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -200.0
+offset_right = 220.0
+offset_bottom = 200.0
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "Choose Your Challenge"
+horizontal_alignment = 1
+
+[node name="MathLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Math"
+horizontal_alignment = 1
+
+[node name="MathRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="AdditionButton" type="Button" parent="VBox/MathRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("MathGroup")
+text = "Addition"
+
+[node name="MultiplicationButton" type="Button" parent="VBox/MathRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("MathGroup")
+text = "Multiply"
+
+[node name="FractionsButton" type="Button" parent="VBox/MathRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("MathGroup")
+text = "Fractions"
+
+[node name="MazeLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Maze"
+horizontal_alignment = 1
+
+[node name="MazeRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="MazeEasyButton" type="Button" parent="VBox/MazeRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("MazeGroup")
+text = "Easy"
+
+[node name="MazeMediumButton" type="Button" parent="VBox/MazeRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("MazeGroup")
+text = "Medium"
+
+[node name="MazeHardButton" type="Button" parent="VBox/MazeRow"]
+custom_minimum_size = Vector2(130, 48)
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("MazeGroup")
+text = "Hard"
+
+[node name="StartButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Next"
+
+[node name="BackButton" type="Button" parent="VBox"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Back"

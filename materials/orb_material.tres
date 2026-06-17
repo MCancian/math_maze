@@ -1,0 +1,14 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://textures/orb_diffuse.jpg" id="1_hn5dr"]
+[ext_resource type="Texture2D" path="res://textures/orb_nor_gl.jpg" id="2_abirv"]
+[ext_resource type="Texture2D" path="res://textures/orb_rough.jpg" id="3_pdgm2"]
+
+[resource]
+albedo_texture = ExtResource("1_hn5dr")
+roughness_texture = ExtResource("3_pdgm2")
+emission_enabled = true
+emission = Color(0.2, 0.4, 0.5, 1)
+emission_energy_multiplier = 0.5
+normal_enabled = true
+normal_texture = ExtResource("2_abirv")

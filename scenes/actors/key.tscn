@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/actors/key.gd" id="1_up4cr"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7ltq3"]
+size = Vector3(0.5, 0.5, 0.5)
+
+[sub_resource type="SphereMesh" id="SphereMesh_up4cr"]
+radius = 0.25
+height = 0.5
+
+[node name="Key" type="Area3D" unique_id=566262639]
+script = ExtResource("1_up4cr")
+
+[node name="@CollisionShape3D@3" type="CollisionShape3D" parent="." unique_id=1555547607]
+shape = SubResource("BoxShape3D_7ltq3")
+
+[node name="@MeshInstance3D@4" type="MeshInstance3D" parent="." unique_id=1352776447]
+mesh = SubResource("SphereMesh_up4cr")

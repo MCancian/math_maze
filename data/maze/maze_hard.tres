@@ -8,3 +8,7 @@ display_name = "Hard"
 maze_size = 3
 braid_factor = 0.6
 keys_required = 3
+monster_enabled = true
+monster_braid_threshold = 0.5
+monster_speed = 3.4
+monster_cooldown_seconds = 120.0

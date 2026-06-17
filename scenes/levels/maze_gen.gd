@@ -11,6 +11,7 @@ const DIRS := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]
 ##   w, h, n
 ##   entrance, exit: Vector2i  (cell coords)
 ##   deadends: Array[Vector2i] (cells with one connection, exit excluded later)
+##   links: Dictionary cell -> Array[Vector2i] connected neighbors
 ##   dist: Dictionary cell -> distance from entrance
 static func generate(n: int, seed_val: int, braid: float = 0.0) -> Dictionary:
 	var rng := RandomNumberGenerator.new()
@@ -125,5 +126,5 @@ static func generate(n: int, seed_val: int, braid: float = 0.0) -> Dictionary:
 		"grid": grid, "w": w, "h": h, "n": n,
 		"entrance": start, "exit": exit_cell,
 		"exit_dir": exit_dir, "exit_opening": Vector2i(open_gx, open_gy),
-		"deadends": deadends, "dist": dist,
+		"deadends": deadends, "links": links, "dist": dist,
 	}

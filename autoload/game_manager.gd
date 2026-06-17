@@ -2,6 +2,7 @@ extends Node
 ## Run-state + scene-flow spine. Everything talks to this instead of each other.
 
 signal keys_changed(collected: int, required: int)
+signal monster_state_changed(active: bool, cooldown_remaining: float)
 signal level_won
 signal level_lost
 
@@ -50,6 +51,8 @@ var current_level: LevelData = FIRST_LEVEL
 var keys_collected: int = 0
 var keys_required: int = 1
 var elapsed_time: float = 0.0
+var monster_active: bool = false
+var monster_cooldown_remaining: float = 0.0
 
 ## Wall-clock start of the current run, set when the level scene is ready.
 var run_start_ms: int = 0
@@ -63,6 +66,7 @@ func reset_run(required: int = 1) -> void:
     keys_collected = 0
     elapsed_time = 0.0
     keys_changed.emit(keys_collected, keys_required)
+    set_monster_state(false, 0.0)
 
 ## Call once gameplay actually begins (level scene _ready), so best times are honest.
 func start_run_timer() -> void:
@@ -71,6 +75,17 @@ func start_run_timer() -> void:
 func collect_key() -> void:
     keys_collected += 1
     keys_changed.emit(keys_collected, keys_required)
+
+func lose_key() -> void:
+    if keys_collected <= 0:
+        return
+    keys_collected -= 1
+    keys_changed.emit(keys_collected, keys_required)
+
+func set_monster_state(active: bool, cooldown_remaining: float = 0.0) -> void:
+    monster_active = active
+    monster_cooldown_remaining = maxf(cooldown_remaining, 0.0)
+    monster_state_changed.emit(monster_active, monster_cooldown_remaining)
 
 func has_required_keys() -> bool:
     return keys_collected >= keys_required

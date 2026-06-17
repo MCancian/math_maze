@@ -33,6 +33,14 @@ offset_bottom = 20.0
 theme_override_font_sizes/font_size = 24
 text = "Keys: 0 / 1"
 
+[node name="MonsterLabel" type="Label" parent="HUD" unique_id=913457201]
+offset_left = 20.0
+offset_top = 54.0
+offset_right = 20.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 20
+text = "Monster: active"
+
 [node name="MessageLabel" type="Label" parent="HUD" unique_id=264562778]
 anchors_preset = 5
 anchor_left = 0.5

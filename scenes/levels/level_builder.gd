@@ -9,8 +9,9 @@ const WALL_H := 3.0
 const PLAYER := preload("res://scenes/actors/player.tscn")
 const KEY := preload("res://scenes/actors/key.tscn")
 const DOOR := preload("res://scenes/actors/door.tscn")
+const MONSTER := preload("res://scenes/actors/monster.tscn")
 
-static func build(root: Node3D, info: Dictionary, maze_cfg: MazeConfig, set_piece: PackedScene) -> int:
+static func build(root: Node3D, info: Dictionary, maze_cfg: MazeConfig, set_piece: PackedScene, level_data: LevelData = null) -> int:
     var grid: Array = info["grid"]
     var w: int = info["w"]
     var h: int = info["h"]
@@ -82,6 +83,12 @@ static func build(root: Node3D, info: Dictionary, maze_cfg: MazeConfig, set_piec
     if set_piece:
         root.add_child(set_piece.instantiate())
 
+    if level_data and level_data.allows_monster(maze_cfg):
+        var monster := MONSTER.instantiate()
+        monster.setup(info, maze_cfg)
+        monster.position = _cell_world(_monster_spawn_cell(info), w, h, 0.0)
+        root.add_child(monster)
+
     # Player at the entrance — added last so its HUD reads final key count.
     var player := PLAYER.instantiate()
     player.position = _cell_world(info["entrance"], w, h, 1.0)
@@ -94,3 +101,15 @@ static func _grid_world(gx: int, gy: int, w: int, h: int, y: float) -> Vector3:
 
 static func _cell_world(cell: Vector2i, w: int, h: int, y: float) -> Vector3:
     return _grid_world(2 * cell.x + 1, 2 * cell.y + 1, w, h, y)
+
+static func _monster_spawn_cell(info: Dictionary) -> Vector2i:
+    var dist: Dictionary = info["dist"]
+    var best: Vector2i = info["entrance"]
+    var best_dist := -1
+    for cell in dist.keys():
+        if cell == info["entrance"] or cell == info["exit"]:
+            continue
+        if dist[cell] > best_dist:
+            best = cell
+            best_dist = dist[cell]
+    return best

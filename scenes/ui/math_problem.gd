@@ -1,12 +1,14 @@
 extends Control
 
 signal solved
+signal wrong_answer
 
 @onready var question_label: Label = $Panel/VBoxContainer/QuestionLabel
 @onready var answer_input: LineEdit = $Panel/VBoxContainer/AnswerInput
 @onready var submit_button: Button = $Panel/VBoxContainer/SubmitButton
 
 var current_answer: int = 0
+var wrong_answer_message := "Incorrect! Try again."
 
 func _ready() -> void:
     hide()
@@ -21,6 +23,9 @@ func show_problem() -> void:
     show()
     answer_input.grab_focus()
 
+func set_wrong_answer_message(message: String) -> void:
+    wrong_answer_message = message
+
 func _on_submit() -> void:
     _check_answer()
     
@@ -32,5 +37,6 @@ func _check_answer() -> void:
         hide()
         solved.emit()
     else:
+        wrong_answer.emit()
         answer_input.text = ""
-        question_label.text = "Incorrect! Try again."
+        question_label.text = wrong_answer_message

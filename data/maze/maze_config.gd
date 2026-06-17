@@ -11,3 +11,13 @@ class_name MazeConfig
 @export_range(0.0, 1.0) var braid_factor: float = 0.0
 ## Keys to collect before the door opens.
 @export var keys_required: int = 1
+
+## Default monster gate for open/hard mazes. LevelData can override this.
+@export var monster_enabled: bool = false
+@export_range(0.0, 1.0) var monster_braid_threshold: float = 0.5
+## Player SPEED is 5.0; monster stays slower so escape remains possible.
+@export var monster_speed: float = 3.4
+@export var monster_cooldown_seconds: float = 120.0
+
+func allows_monster() -> bool:
+    return monster_enabled and braid_factor >= monster_braid_threshold

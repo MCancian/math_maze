@@ -15,11 +15,13 @@ Configs: `addition.tres` (ADD), `multiplication.tres` (MUL), `fractions.tres`
 ## Maze — `MazeConfig` (`data/maze/maze_config.gd`, `data/maze/*.tres`)
 
 Controls only the maze. `maze_size` (cells per side → grid `2*(size+3)+1`),
-`braid_factor` (0 = perfect maze, higher = more loops), `keys_required`. Read by
-`LevelBuilder` + `level_generated.gd` via `GameManager.maze`.
+`braid_factor` (0 = perfect maze, higher = more loops), `keys_required`, plus monster
+spawn/tuning fields (`monster_enabled`, `monster_braid_threshold`, `monster_speed`,
+`monster_cooldown_seconds`). Read by `LevelBuilder` + `level_generated.gd` via
+`GameManager.maze`.
 
 Configs: `maze_easy` (size1/braid0/keys1), `maze_medium` (size2/braid0.25/keys2),
-`maze_hard` (size3/braid0.5/keys3).
+`maze_hard` (size3/braid0.6/keys3, monster enabled above braid0.5).
 
 ## Registration
 

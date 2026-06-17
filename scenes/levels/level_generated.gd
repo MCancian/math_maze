@@ -9,6 +9,6 @@ func _ready() -> void:
     var seed_val: int = data.maze_seed if data else 0
     var info := MazeGen.generate(n, seed_val, maze_cfg.braid_factor)
     var set_piece: PackedScene = data.set_piece if data else null
-    var placed := LevelBuilder.build(self, info, maze_cfg, set_piece)
+    var placed := LevelBuilder.build(self, info, maze_cfg, set_piece, data)
     GameManager.reset_run(placed)
     GameManager.start_run_timer()

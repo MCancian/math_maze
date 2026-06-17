@@ -10,8 +10,8 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
 - `scenes/actors/monster.tscn` / `monster.gd`: Quaternius slime chaser that follows
   the player with grid BFS over `MazeGen.links`.
 - Catch opens the existing `scenes/ui/math_problem.tscn` prompt. Correct answers hide
-  the monster for `MazeConfig.monster_cooldown_seconds` (120 seconds on Hard), then it
-  respawns at the farthest reachable cell from the player.
+  the monster for `MazeConfig.monster_cooldown_seconds` (120 seconds on Medium/Hard),
+  then it respawns at the farthest reachable cell from the player.
 - Wrong catch answers call `GameManager.lose_key()`; key count clamps at zero and the
   prompt stays open until the player answers correctly.
 - `MazeConfig` owns default gating and tuning (`monster_enabled`,
@@ -30,10 +30,11 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
 
 ## Decisions recorded
 
-- **Gating:** both gates — default by maze difficulty/braid threshold, with per-level
-  override.
+- **Gating:** both gates — Medium and Hard default on by maze difficulty/braid
+  threshold, with per-level override.
 - **Movement:** grid BFS pursuit, not `NavigationAgent3D`.
-- **Speed:** slower than the player; Hard uses `3.4` vs player `5.0`.
+- **Speed:** slower than the player; Medium uses `3.0`, Hard uses `3.4`, player uses
+  `5.0`.
 - **Wrong answer:** lose one collected key, clamped at zero.
 - **HUD:** active/cooldown indicator visible under the key count.
 

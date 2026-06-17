@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1")
 display_name = "Hard"
-maze_size = 3
-braid_factor = 0.6
+maze_size = 6
+braid_factor = 0.7
 keys_required = 3
 monster_enabled = true
-monster_braid_threshold = 0.5
+monster_braid_threshold = 0.65
 monster_speed = 3.4
 monster_cooldown_seconds = 120.0

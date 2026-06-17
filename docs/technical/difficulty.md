@@ -20,8 +20,9 @@ spawn/tuning fields (`monster_enabled`, `monster_braid_threshold`, `monster_spee
 `monster_cooldown_seconds`). Read by `LevelBuilder` + `level_generated.gd` via
 `GameManager.maze`.
 
-Configs: `maze_easy` (size1/braid0/keys1), `maze_medium` (size2/braid0.25/keys2),
-`maze_hard` (size3/braid0.6/keys3, monster enabled above braid0.5).
+Configs: `maze_easy` (size1 → 4×4 cells, braid0, keys1, no monster),
+`maze_medium` (size4 → 7×7 cells, braid0.5, keys2, monster enabled above braid0.45),
+`maze_hard` (size6 → 9×9 cells, braid0.7, keys3, monster enabled above braid0.65).
 
 ## Registration
 

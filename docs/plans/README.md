@@ -14,6 +14,11 @@ match its row here. Keep the Active list short; move a row to Shipped when it la
 | --- | --- | --- | --- |
 | 04 | [lose-conditions](04-lose-conditions.md) | 🔜 Future | Timer / lives and a real Lose trigger |
 | 05 | [performance](05-performance.md) | 🔜 Future | Merge wall geometry (GridMap / single mesh) for large mazes |
+| 06 | [wall-textures-and-objects](06-wall-textures-and-objects.md) | 🔜 Future | Varied wall textures + decorative props on generated mazes |
+| 07 | [chasing-monster](07-chasing-monster.md) | 🔜 Future | Monster on open/hard mazes; catch = math question, then far respawn |
+| 08 | [map-overlay](08-map-overlay.md) | 🔜 Future | Press-M fog-of-war map (explored cells only) |
+| 09 | [door-wall-placement](09-door-wall-placement.md) | 🔜 Future | Fix: put the exit door on the perimeter, flush in an outer wall |
+| 10 | [bonus-problems-and-coins](10-bonus-problems-and-coins.md) | 🔜 Future | Scattered bonus word problems award a separate coins currency |
 
 ## Shipped
 

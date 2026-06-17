@@ -18,6 +18,9 @@ class_name MazeConfig
 ## Player SPEED is 5.0; monster stays slower so escape remains possible.
 @export var monster_speed: float = 3.4
 @export var monster_cooldown_seconds: float = 120.0
+## Hard-mode pressure knobs: darker visual + procedural proximity rumble.
+@export var monster_scary_visual: bool = false
+@export var monster_sound_enabled: bool = false
 
 func allows_monster() -> bool:
     return monster_enabled and braid_factor >= monster_braid_threshold

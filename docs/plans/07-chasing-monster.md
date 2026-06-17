@@ -15,7 +15,8 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
 - Wrong catch answers call `GameManager.lose_key()`; key count clamps at zero and the
   prompt stays open until the player answers correctly.
 - `MazeConfig` owns default gating and tuning (`monster_enabled`,
-  `monster_braid_threshold`, `monster_speed`, `monster_cooldown_seconds`).
+  `monster_braid_threshold`, `monster_speed`, `monster_cooldown_seconds`,
+  `monster_scary_visual`, `monster_sound_enabled`).
 - `LevelData.monster_spawn` can force the monster on or off per level; `Default` uses
   `MazeConfig.allows_monster()`.
 - HUD now shows monster active/cooldown state through `GameManager.monster_state_changed`.
@@ -33,8 +34,10 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
 - **Gating:** both gates — Medium and Hard default on by maze difficulty/braid
   threshold, with per-level override.
 - **Movement:** grid BFS pursuit, not `NavigationAgent3D`.
-- **Speed:** slower than the player; Medium uses `3.0`, Hard uses `3.4`, player uses
+- **Speed:** slower than the player; Medium uses `3.0`, Hard uses `4.2`, player uses
   `5.0`.
+- **Hard presentation:** shadow body, red emissive eyes, and procedural proximity rumble.
+  Medium keeps the Quaternius slime and no sound.
 - **Wrong answer:** lose one collected key, clamped at zero.
 - **HUD:** active/cooldown indicator visible under the key count.
 

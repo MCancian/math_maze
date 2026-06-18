@@ -17,6 +17,7 @@ var caught_player: Node
 var _target_cell := Vector2i.ZERO
 var _has_target := false
 var _status_emit_timer := 0.0
+var _bee_visual := false
 var _scary_visual := false
 var _sound_enabled := false
 var _sound_playback: AudioStreamGeneratorPlayback
@@ -25,6 +26,8 @@ var _pulse_phase := 0.0
 
 @onready var visual: Node3D = $Visual
 @onready var slime_visual: MeshInstance3D = $Visual/Slime
+@onready var bee_visual: Node3D = $Visual/Bee
+@onready var horror_visual: Node3D = $Visual/Horror
 @onready var shadow_visual: Node3D = $Visual/Shadow
 @onready var hard_sound: AudioStreamPlayer3D = $HardSound
 
@@ -35,6 +38,7 @@ func setup(info: Dictionary, cfg: MazeConfig) -> void:
     if cfg:
         speed = cfg.monster_speed
         cooldown_seconds = cfg.monster_cooldown_seconds
+        _bee_visual = cfg.monster_bee_visual
         _scary_visual = cfg.monster_scary_visual
         _sound_enabled = cfg.monster_sound_enabled
 
@@ -47,6 +51,7 @@ func _ready() -> void:
     ui_instance.solved.connect(_on_solved)
     ui_instance.wrong_answer.connect(_on_wrong_answer)
     _apply_visual_style()
+    _play_horror_animation()
     _setup_hard_sound()
     call_deferred("_activate")
 
@@ -106,8 +111,30 @@ func _is_at_target() -> bool:
     return flat.length() <= 0.1
 
 func _apply_visual_style() -> void:
-    slime_visual.visible = not _scary_visual
-    shadow_visual.visible = _scary_visual
+    bee_visual.visible = _bee_visual and not _scary_visual
+    slime_visual.visible = not _bee_visual and not _scary_visual
+    horror_visual.visible = _scary_visual
+    shadow_visual.visible = false
+
+func _play_horror_animation() -> void:
+    if not _scary_visual:
+        return
+    var animation_player := _find_animation_player(horror_visual)
+    if animation_player == null:
+        return
+    var animations := animation_player.get_animation_list()
+    if animations.is_empty():
+        return
+    animation_player.play(animations[0])
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node as AnimationPlayer
+    for child in node.get_children():
+        var found := _find_animation_player(child)
+        if found != null:
+            return found
+    return null
 
 func _setup_hard_sound() -> void:
     if not _sound_enabled:

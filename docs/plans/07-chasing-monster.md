@@ -16,7 +16,7 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
   prompt stays open until the player answers correctly.
 - `MazeConfig` owns default gating and tuning (`monster_enabled`,
   `monster_braid_threshold`, `monster_speed`, `monster_cooldown_seconds`,
-  `monster_scary_visual`, `monster_sound_enabled`).
+  `monster_bee_visual`, `monster_scary_visual`, `monster_sound_enabled`).
 - `LevelData.monster_spawn` can force the monster on or off per level; `Default` uses
   `MazeConfig.allows_monster()`.
 - HUD now shows monster active/cooldown state through `GameManager.monster_state_changed`.
@@ -24,20 +24,28 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
 ## Asset
 
 - Downloaded source pack: `tools/downloads/quaternius/Animated_Monster_Pack_by_Quaternius.zip`.
-- Runtime asset used: `assets/monsters/quaternius_slime/slime.obj` + `Slime.mtl`.
-- License: `assets/monsters/quaternius_slime/LICENSE.txt` (`CC0 1.0 Universal`).
-- The full pack contains Bat, Dragon, Skeleton, and Slime in Blend/FBX/OBJ. Slime was
+- Runtime assets used:
+  - `assets/monsters/quaternius_slime/slime.obj` + `Slime.mtl`.
+  - `assets/monsters/quaternius_bee/bee_enemy.glb` for Easy's friendly bee monster.
+  - `assets/monsters/smily_horror_monster.glb` for Hard's animated horror monster.
+- Licenses:
+  - `assets/monsters/quaternius_slime/LICENSE.txt` (`CC0 1.0 Universal`).
+  - `assets/monsters/quaternius_bee/LICENSE.txt` (`CC0 1.0 Universal`).
+  - `assets/monsters/smily_horror_monster_LICENSE.txt` (`CC-BY-4.0`, author Bento).
+- The monster pack contains Bat, Dragon, Skeleton, and Slime in Blend/FBX/OBJ. Slime was
   selected because OBJ imports cleanly and reads as kid-friendly rather than scary.
+- Extra asset stash to review later: https://drive.google.com/drive/folders/18m4KpzpEzhC9wl7jzr6dUc0N8Jozr79C
 
 ## Decisions recorded
 
-- **Gating:** both gates — Medium and Hard default on by maze difficulty/braid
+- **Gating:** both gates — Easy/Medium/Hard default on by maze difficulty/braid
   threshold, with per-level override.
 - **Movement:** grid BFS pursuit, not `NavigationAgent3D`.
-- **Speed:** slower than the player; Medium uses `3.0`, Hard uses `4.2`, player uses
-  `5.0`.
-- **Hard presentation:** shadow body, red emissive eyes, and procedural proximity rumble.
-  Medium keeps the Quaternius slime and no sound.
+- **Speed:** slower than the player; Easy uses `2.2`, Medium uses `3.0`, Hard uses
+  `4.2`, player uses `5.0`.
+- **Presentation:** Easy uses a friendly Quaternius bee with no sound; Medium keeps the
+  Quaternius slime and no sound; Hard uses an animated Smily horror monster with
+  procedural proximity rumble.
 - **Wrong answer:** lose one collected key, clamped at zero.
 - **HUD:** active/cooldown indicator visible under the key count.
 

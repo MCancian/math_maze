@@ -21,8 +21,9 @@ The script runs:
 - Slash answers equivalent to whole numbers solve.
 - `GameManager.lose_key()` clamps at zero.
 - Monster gates for Easy/Medium/Hard.
+- Easy monster spawns as a slow bee with no sound.
 - Medium monster spawns as slime with no sound.
-- Hard monster spawns faster, as shadow/red eyes, with sound enabled.
+- Hard monster spawns faster, as animated horror model, with sound enabled.
 
 Prefer adding new runtime coverage to `tools/test_runtime.gd` when behavior depends on
 autoloads, scenes, groups, or signals. Keep pure data/persistence checks in

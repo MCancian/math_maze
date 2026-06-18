@@ -19,8 +19,9 @@ func _run() -> void:
     await _test_math_problem_input()
     _test_key_loss_clamps()
     _test_monster_config_gates()
-    await _test_monster_runtime(MEDIUM_MAZE, "medium", false, false, 3.0)
-    await _test_monster_runtime(HARD_MAZE, "hard", true, true, 4.2)
+    await _test_monster_runtime(EASY_MAZE, "easy", "bee", false, 2.2)
+    await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
+    await _test_monster_runtime(HARD_MAZE, "hard", "horror", true, 4.2)
     _finish()
 
 func _check(condition: bool, message: String) -> void:
@@ -83,16 +84,19 @@ func _test_key_loss_clamps() -> void:
     _check(GameManager.keys_collected == 0, "lose_key should clamp at zero")
 
 func _test_monster_config_gates() -> void:
-    _check(not EASY_MAZE.allows_monster(), "easy maze should not allow monster")
+    _check(EASY_MAZE.allows_monster(), "easy maze should allow friendly bee monster")
     _check(MEDIUM_MAZE.allows_monster(), "medium maze should allow monster")
     _check(HARD_MAZE.allows_monster(), "hard maze should allow monster")
+    _check(EASY_MAZE.monster_bee_visual, "easy monster should use bee visual")
+    _check(not EASY_MAZE.monster_sound_enabled, "easy monster should not play sound")
+    _check(not MEDIUM_MAZE.monster_bee_visual, "medium monster should not use bee visual")
     _check(not MEDIUM_MAZE.monster_scary_visual, "medium monster should keep slime visual")
     _check(not MEDIUM_MAZE.monster_sound_enabled, "medium monster should not play sound")
     _check(HARD_MAZE.monster_scary_visual, "hard monster should use scary visual")
     _check(HARD_MAZE.monster_sound_enabled, "hard monster should play sound")
     _check(HARD_MAZE.monster_speed > MEDIUM_MAZE.monster_speed, "hard monster should be faster than medium")
 
-func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expect_scary: bool, expect_sound: bool, expected_speed: float) -> void:
+func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual: String, expect_sound: bool, expected_speed: float) -> void:
     GameManager.current_level = GEN_05
     GameManager.maze = maze_cfg
     GameManager.math = ADDITION
@@ -109,15 +113,16 @@ func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expect_scary: bo
     if monsters.size() == 1:
         var monster: Node = monsters[0]
         _check(is_equal_approx(monster.speed, expected_speed), "%s monster speed should match config" % label)
-        _check(monster.get_node("Visual/Shadow").visible == expect_scary, "%s monster shadow visibility should match config" % label)
-        _check(monster.get_node("Visual/Slime").visible != expect_scary, "%s monster slime visibility should match config" % label)
+        _check(monster.get_node("Visual/Bee").visible == (expected_visual == "bee"), "%s monster bee visibility should match config" % label)
+        _check(monster.get_node("Visual/Slime").visible == (expected_visual == "slime"), "%s monster slime visibility should match config" % label)
+        _check(monster.get_node("Visual/Horror").visible == (expected_visual == "horror"), "%s monster horror visibility should match config" % label)
+        _check(monster.get_node("Visual/Shadow").visible == false, "%s monster shadow fallback should stay hidden" % label)
         _check(monster.get_node("HardSound").playing == expect_sound, "%s monster sound state should match config" % label)
-        if expect_scary:
-            _check(monster.get_node("Visual/Shadow/LeftEye").position.z > 0.0, "hard monster eyes should be on the front")
-            _check(monster.get_node("Visual/Shadow/RightEye").position.z > 0.0, "hard monster eyes should be on the front")
-            var body: MeshInstance3D = monster.get_node("Visual/Shadow/Body")
-            var material := body.material_override as StandardMaterial3D
-            _check(material != null and material.albedo_color.a < 1.0, "hard monster shadow should be transparent")
+        if expected_visual == "horror":
+            var animation_player: AnimationPlayer = monster._find_animation_player(monster.get_node("Visual/Horror"))
+            _check(animation_player != null, "hard horror monster should import an AnimationPlayer")
+            if animation_player != null:
+                _check(not animation_player.get_animation_list().is_empty(), "hard horror monster should have animation clips")
 
     remove_child(level)
     level.queue_free()

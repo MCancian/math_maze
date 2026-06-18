@@ -5,6 +5,10 @@
 export_presets.cfg
 *.translation
 
+# Local candidate assets not shipped
+assets/monsters/a_horror_monster*
+assets/monsters/zombie*
+
 # OS / editor cruft
 .DS_Store
 Thumbs.db

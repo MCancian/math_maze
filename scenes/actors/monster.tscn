@@ -1,9 +1,8 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scenes/actors/monster.gd" id="1_monster"]
 [ext_resource type="ArrayMesh" path="res://assets/monsters/quaternius_slime/slime.obj" id="2_slime"]
 [ext_resource type="PackedScene" path="res://assets/monsters/quaternius_bee/bee_enemy.glb" id="3_bee"]
-[ext_resource type="PackedScene" path="res://assets/monsters/smily_horror_monster.glb" id="4_horror"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_monster"]
 radius = 1.0
@@ -111,10 +110,6 @@ material_override = SubResource("StandardMaterial3D_bee_black")
 transform = Transform3D(0.45, 0, 0, 0, 0.45, 0, 0, 0, 0.45, 0.24, 0.45, 0.85)
 mesh = SubResource("SphereMesh_eye")
 material_override = SubResource("StandardMaterial3D_bee_black")
-
-[node name="Horror" parent="Visual" instance=ExtResource("4_horror")]
-visible = false
-transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 0, 1.05, 0)
 
 [node name="Shadow" type="Node3D" parent="Visual"]
 visible = false

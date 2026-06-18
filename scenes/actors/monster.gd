@@ -27,7 +27,6 @@ var _pulse_phase := 0.0
 @onready var visual: Node3D = $Visual
 @onready var slime_visual: MeshInstance3D = $Visual/Slime
 @onready var bee_visual: Node3D = $Visual/Bee
-@onready var horror_visual: Node3D = $Visual/Horror
 @onready var shadow_visual: Node3D = $Visual/Shadow
 @onready var hard_sound: AudioStreamPlayer3D = $HardSound
 
@@ -51,7 +50,6 @@ func _ready() -> void:
     ui_instance.solved.connect(_on_solved)
     ui_instance.wrong_answer.connect(_on_wrong_answer)
     _apply_visual_style()
-    _play_horror_animation()
     _setup_hard_sound()
     call_deferred("_activate")
 
@@ -113,28 +111,7 @@ func _is_at_target() -> bool:
 func _apply_visual_style() -> void:
     bee_visual.visible = _bee_visual and not _scary_visual
     slime_visual.visible = not _bee_visual and not _scary_visual
-    horror_visual.visible = _scary_visual
-    shadow_visual.visible = false
-
-func _play_horror_animation() -> void:
-    if not _scary_visual:
-        return
-    var animation_player := _find_animation_player(horror_visual)
-    if animation_player == null:
-        return
-    var animations := animation_player.get_animation_list()
-    if animations.is_empty():
-        return
-    animation_player.play(animations[0])
-
-func _find_animation_player(node: Node) -> AnimationPlayer:
-    if node is AnimationPlayer:
-        return node as AnimationPlayer
-    for child in node.get_children():
-        var found := _find_animation_player(child)
-        if found != null:
-            return found
-    return null
+    shadow_visual.visible = _scary_visual
 
 func _setup_hard_sound() -> void:
     if not _sound_enabled:

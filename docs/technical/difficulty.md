@@ -24,7 +24,7 @@ spawn/tuning fields (`monster_enabled`, `monster_braid_threshold`, `monster_spee
 Configs: `maze_easy` (size1 → 4×4 cells, braid0, keys1, slow friendly bee monster, no
 sound), `maze_medium` (size4 → 7×7 cells, braid0.5, keys2, monster enabled above
 braid0.45, slime visual, no sound), `maze_hard` (size6 → 9×9 cells, braid0.7, keys3,
-monster enabled above braid0.65, faster animated horror visual, procedural rumble
+monster enabled above braid0.65, faster shadow/red-eyes visual, procedural rumble
 sound).
 
 ## Registration

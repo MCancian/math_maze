@@ -21,7 +21,7 @@ func _run() -> void:
     _test_monster_config_gates()
     await _test_monster_runtime(EASY_MAZE, "easy", "bee", false, 2.2)
     await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
-    await _test_monster_runtime(HARD_MAZE, "hard", "horror", true, 4.2)
+    await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2)
     _finish()
 
 func _check(condition: bool, message: String) -> void:
@@ -115,14 +115,14 @@ func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual:
         _check(is_equal_approx(monster.speed, expected_speed), "%s monster speed should match config" % label)
         _check(monster.get_node("Visual/Bee").visible == (expected_visual == "bee"), "%s monster bee visibility should match config" % label)
         _check(monster.get_node("Visual/Slime").visible == (expected_visual == "slime"), "%s monster slime visibility should match config" % label)
-        _check(monster.get_node("Visual/Horror").visible == (expected_visual == "horror"), "%s monster horror visibility should match config" % label)
-        _check(monster.get_node("Visual/Shadow").visible == false, "%s monster shadow fallback should stay hidden" % label)
+        _check(monster.get_node("Visual/Shadow").visible == (expected_visual == "shadow"), "%s monster shadow visibility should match config" % label)
         _check(monster.get_node("HardSound").playing == expect_sound, "%s monster sound state should match config" % label)
-        if expected_visual == "horror":
-            var animation_player: AnimationPlayer = monster._find_animation_player(monster.get_node("Visual/Horror"))
-            _check(animation_player != null, "hard horror monster should import an AnimationPlayer")
-            if animation_player != null:
-                _check(not animation_player.get_animation_list().is_empty(), "hard horror monster should have animation clips")
+        if expected_visual == "shadow":
+            _check(monster.get_node("Visual/Shadow/LeftEye").position.z > 0.0, "hard monster eyes should be on the front")
+            _check(monster.get_node("Visual/Shadow/RightEye").position.z > 0.0, "hard monster eyes should be on the front")
+            var body: MeshInstance3D = monster.get_node("Visual/Shadow/Body")
+            var material := body.material_override as StandardMaterial3D
+            _check(material != null and material.albedo_color.a < 1.0, "hard monster shadow should be transparent")
 
     remove_child(level)
     level.queue_free()

@@ -102,7 +102,7 @@ func _test_monster_config_gates() -> void:
 func _test_dark_maze_config() -> void:
     _check(HARD_MAZE.dark_maze, "hard maze should be dark")
     _check(not EASY_MAZE.dark_maze, "easy maze should stay lit")
-    _check(not MEDIUM_MAZE.dark_maze, "medium maze should stay lit")
+    _check(MEDIUM_MAZE.dark_maze, "medium maze should be dark")
     _check(HARD_MAZE.flashlight_seconds > 0.0, "hard flashlight needs a positive charge")
     _check(InputMap.has_action("flashlight"), "flashlight input action should exist")
     var f_bound := false

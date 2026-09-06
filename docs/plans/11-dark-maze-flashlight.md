@@ -10,7 +10,7 @@ mechanic also adds arithmetic practice.
 ## Shipped
 
 - `MazeConfig.dark_maze` / `MazeConfig.flashlight_seconds` (`data/maze/maze_config.gd`).
-  Hard sets `dark_maze = true`, `flashlight_seconds = 30`. Easy and Medium stay lit.
+  Medium and Hard set `dark_maze = true`, `flashlight_seconds = 30`. Easy stays lit.
 - `level_generated.gd` `_apply_darkness()`: duplicates the scene `Environment`, sets
   near-zero ambient light, dense black fog, and hides the `Sun`. Duplication keeps the
   shared scene resource lit for the next non-dark level.
@@ -28,8 +28,8 @@ mechanic also adds arithmetic practice.
 
 ## Decisions recorded
 
-- **Gating:** darkness is a `MazeConfig` knob, on for Hard only. Flip `dark_maze` on
-  Medium to extend it.
+- **Gating:** darkness is a `MazeConfig` knob, on for Medium and Hard. Easy keeps the
+  sun so the youngest players are not scared off.
 - **Battery:** drains only while on and the player is not in a prompt, so kids can
   conserve it by switching off. Starts full on spawn.
 - **Recharge:** any math problem from the current `MathConfig`; the prompt blocks

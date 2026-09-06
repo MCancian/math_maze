@@ -24,7 +24,7 @@ The script runs:
 - Easy monster spawns as a slow bee with no sound.
 - Medium monster spawns as slime with no sound.
 - Hard monster spawns faster, as shadow visual, with sound enabled.
-- Hard maze is dark: fog on, sun hidden, keys glow, flashlight starts on, F toggles,
+- Medium and Hard mazes are dark: fog on, sun hidden, keys glow, flashlight starts on, F toggles,
   charge drains, dead battery opens a math problem, correct answer refills.
 - Easy maze after a Hard one stays lit (shared Environment not mutated).
 

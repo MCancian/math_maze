@@ -12,3 +12,5 @@ monster_enabled = true
 monster_braid_threshold = 0.45
 monster_speed = 3.0
 monster_cooldown_seconds = 120.0
+dark_maze = true
+flashlight_seconds = 30.0

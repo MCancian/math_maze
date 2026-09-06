@@ -23,7 +23,10 @@ The script runs:
 - Monster gates for Easy/Medium/Hard.
 - Easy monster spawns as a slow bee with no sound.
 - Medium monster spawns as slime with no sound.
-- Hard monster spawns faster, as animated horror model, with sound enabled.
+- Hard monster spawns faster, as shadow visual, with sound enabled.
+- Hard maze is dark: fog on, sun hidden, keys glow, flashlight starts on, F toggles,
+  charge drains, dead battery opens a math problem, correct answer refills.
+- Easy maze after a Hard one stays lit (shared Environment not mutated).
 
 Prefer adding new runtime coverage to `tools/test_runtime.gd` when behavior depends on
 autoloads, scenes, groups, or signals. Keep pure data/persistence checks in

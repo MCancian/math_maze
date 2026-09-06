@@ -27,6 +27,7 @@ match its row here. Keep the Active list short; move a row to Shipped when it la
 | 03 | [save-and-progression](03-save-and-progression.md) | ✅ Implemented | 3-slot profiles, SaveManager, Level Select; persist unlocks + per-level best time/stars |
 | 07 | [chasing-monster](07-chasing-monster.md) | ✅ Implemented | Monster on open/hard mazes; catch = math key penalty, then cooldown + far respawn |
 | 09 | [door-wall-placement](09-door-wall-placement.md) | ✅ Implemented | Fix: put the exit door on the perimeter, flush in an outer wall |
+| 11 | [dark-maze-flashlight](11-dark-maze-flashlight.md) | ✅ Implemented | Hard maze goes dark; F flashlight drains and recharges by solving math |
 
 See also the high-level architecture in [`../../DESIGN.md`](../../DESIGN.md) and the
 agent orientation in [`../../AGENTS.md`](../../AGENTS.md).

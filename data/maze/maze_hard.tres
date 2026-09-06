@@ -14,3 +14,5 @@ monster_speed = 4.2
 monster_cooldown_seconds = 120.0
 monster_scary_visual = true
 monster_sound_enabled = true
+dark_maze = true
+flashlight_seconds = 30.0

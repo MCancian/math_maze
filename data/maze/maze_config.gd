@@ -23,5 +23,11 @@ class_name MazeConfig
 @export var monster_scary_visual: bool = false
 @export var monster_sound_enabled: bool = false
 
+## Darkness: sun off, black fog, player carries a flashlight (F key).
+## Flashlight drains while on; a dead battery needs a solved math problem to recharge.
+@export var dark_maze: bool = false
+## Seconds of light per full charge.
+@export var flashlight_seconds: float = 30.0
+
 func allows_monster() -> bool:
     return monster_enabled and braid_factor >= monster_braid_threshold

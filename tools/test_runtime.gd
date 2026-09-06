@@ -22,6 +22,9 @@ func _run() -> void:
     await _test_monster_runtime(EASY_MAZE, "easy", "bee", false, 2.2)
     await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
     await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2)
+    _test_dark_maze_config()
+    await _test_dark_maze_runtime()
+    await _test_lit_maze_after_dark()
     _finish()
 
 func _check(condition: bool, message: String) -> void:
@@ -95,6 +98,109 @@ func _test_monster_config_gates() -> void:
     _check(HARD_MAZE.monster_scary_visual, "hard monster should use scary visual")
     _check(HARD_MAZE.monster_sound_enabled, "hard monster should play sound")
     _check(HARD_MAZE.monster_speed > MEDIUM_MAZE.monster_speed, "hard monster should be faster than medium")
+
+func _test_dark_maze_config() -> void:
+    _check(HARD_MAZE.dark_maze, "hard maze should be dark")
+    _check(not EASY_MAZE.dark_maze, "easy maze should stay lit")
+    _check(not MEDIUM_MAZE.dark_maze, "medium maze should stay lit")
+    _check(HARD_MAZE.flashlight_seconds > 0.0, "hard flashlight needs a positive charge")
+    _check(InputMap.has_action("flashlight"), "flashlight input action should exist")
+    var f_bound := false
+    for ev in InputMap.action_get_events("flashlight"):
+        if ev is InputEventKey and ev.keycode == KEY_F:
+            f_bound = true
+    _check(f_bound, "flashlight action should be bound to F")
+
+func _spawn_level(maze_cfg: MazeConfig) -> Node:
+    GameManager.current_level = GEN_05
+    GameManager.maze = maze_cfg
+    GameManager.math = ADDITION
+    GameManager.reset_run(1)
+    var level := GENERATED_LEVEL.instantiate()
+    add_child(level)
+    await get_tree().process_frame
+    await get_tree().process_frame
+    await get_tree().process_frame
+    return level
+
+func _despawn_level(level: Node) -> void:
+    remove_child(level)
+    level.queue_free()
+    await get_tree().process_frame
+    await get_tree().process_frame
+
+func _player() -> Node:
+    var players := get_tree().get_nodes_in_group("player")
+    return players[0] if players.size() == 1 else null
+
+func _test_dark_maze_runtime() -> void:
+    var level: Node = await _spawn_level(HARD_MAZE)
+    var env: Environment = level.get_node("WorldEnvironment").environment
+    _check(env.fog_enabled, "dark maze should enable fog")
+    _check(not level.get_node("Sun").visible, "dark maze should hide the sun")
+
+    var player: Node = _player()
+    _check(player != null, "dark maze should spawn one player")
+    if player:
+        var light: SpotLight3D = player.get_node("Head/Camera3D/Flashlight")
+        _check(player.flashlight_enabled, "dark maze should enable the flashlight")
+        _check(player.flashlight_on and light.visible, "flashlight should start on")
+        _check(player.flashlight_charge > HARD_MAZE.flashlight_seconds - 1.0, "flashlight should start (nearly) fully charged")
+        _check(GameManager.flashlight_enabled and GameManager.flashlight_on, "GameManager should mirror flashlight state")
+
+        player._press_flashlight()
+        _check(not player.flashlight_on and not light.visible, "F should turn the flashlight off")
+        player._press_flashlight()
+        _check(player.flashlight_on and light.visible, "F should turn the flashlight back on")
+
+        var before: float = player.flashlight_charge
+        player._process(1.0)
+        _check(player.flashlight_charge < before, "flashlight should drain while on")
+
+        player.flashlight_charge = 0.5
+        player._process(1.0)
+        _check(not player.flashlight_on and not light.visible, "flashlight should switch off when drained")
+        _check(is_zero_approx(GameManager.flashlight_charge_remaining), "GameManager should report a dead battery")
+
+        var hud_label: Label = player.get_node("HUD/FlashlightLabel")
+        _check(hud_label.text.find("dead") >= 0, "HUD should say the flashlight is dead")
+
+        player._press_flashlight()
+        var ui: Control = player._flashlight_ui
+        _check(player.is_interacting, "dead flashlight + F should open a math problem")
+        _check(ui != null and ui.visible, "recharge prompt should be visible")
+        if ui:
+            ui.current_answer = 7
+            ui.answer_input.text = "3"
+            ui._check_answer()
+            _check(player.is_interacting and is_zero_approx(player.flashlight_charge), "wrong answer should not recharge")
+            ui.answer_input.text = "7"
+            ui._check_answer()
+            _check(not player.is_interacting, "correct answer should release the player")
+            _check(player.flashlight_on and light.visible, "correct answer should turn the flashlight on")
+            _check(is_equal_approx(player.flashlight_charge, HARD_MAZE.flashlight_seconds), "correct answer should fully recharge")
+
+    var keys := get_tree().get_nodes_in_group("key")
+    var glowing := 0
+    for key in keys:
+        for child in key.get_children():
+            if child is MeshInstance3D and child.material_override != null:
+                glowing += 1
+    _check(keys.size() > 0 and glowing == keys.size(), "dark maze keys should glow")
+
+    await _despawn_level(level)
+
+func _test_lit_maze_after_dark() -> void:
+    var level: Node = await _spawn_level(EASY_MAZE)
+    var env: Environment = level.get_node("WorldEnvironment").environment
+    _check(not env.fog_enabled, "lit maze after a dark one should have no fog (shared Environment must not be mutated)")
+    _check(level.get_node("Sun").visible, "lit maze should keep the sun")
+    var player: Node = _player()
+    if player:
+        _check(not player.flashlight_enabled, "lit maze should disable the flashlight")
+        _check(not player.get_node("Head/Camera3D/Flashlight").visible, "lit maze flashlight should be hidden")
+        _check(player.get_node("HUD/FlashlightLabel").text == "", "lit maze HUD should hide the flashlight label")
+    await _despawn_level(level)
 
 func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual: String, expect_sound: bool, expected_speed: float) -> void:
     GameManager.current_level = GEN_05

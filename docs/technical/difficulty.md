@@ -18,14 +18,20 @@ Controls only the maze. `maze_size` (cells per side → grid `2*(size+3)+1`),
 `braid_factor` (0 = perfect maze, higher = more loops), `keys_required`, plus monster
 spawn/tuning fields (`monster_enabled`, `monster_braid_threshold`, `monster_speed`,
 `monster_cooldown_seconds`, `monster_bee_visual`, `monster_scary_visual`,
-`monster_sound_enabled`). Read by `LevelBuilder` + `level_generated.gd` via
-`GameManager.maze`.
+`monster_sound_enabled`) and darkness fields (`dark_maze`, `flashlight_seconds`). Read
+by `LevelBuilder` + `level_generated.gd` via `GameManager.maze`.
+
+`dark_maze` makes `level_generated.gd` hide the sun and add black fog
+(`_apply_darkness`), gives the player a flashlight on **F** (`player.gd`
+`_press_flashlight`), and makes key orbs glow. The flashlight drains
+`flashlight_seconds` while on; when dead, F opens a math problem and a correct answer
+refills it. HUD mirrors state via `GameManager.flashlight_changed`.
 
 Configs: `maze_easy` (size1 → 4×4 cells, braid0, keys1, slow friendly bee monster, no
 sound), `maze_medium` (size4 → 7×7 cells, braid0.5, keys2, monster enabled above
 braid0.45, slime visual, no sound), `maze_hard` (size6 → 9×9 cells, braid0.7, keys3,
 monster enabled above braid0.65, faster shadow/red-eyes visual, procedural rumble
-sound).
+sound, dark maze with a 30-second flashlight).
 
 ## Registration
 

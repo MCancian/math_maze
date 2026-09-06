@@ -3,6 +3,7 @@ extends Node
 
 signal keys_changed(collected: int, required: int)
 signal monster_state_changed(active: bool, cooldown_remaining: float)
+signal flashlight_changed(enabled: bool, on: bool, charge_remaining: float)
 signal level_won
 signal level_lost
 
@@ -53,6 +54,9 @@ var keys_required: int = 1
 var elapsed_time: float = 0.0
 var monster_active: bool = false
 var monster_cooldown_remaining: float = 0.0
+var flashlight_enabled: bool = false
+var flashlight_on: bool = false
+var flashlight_charge_remaining: float = 0.0
 
 ## Wall-clock start of the current run, set when the level scene is ready.
 var run_start_ms: int = 0
@@ -86,6 +90,13 @@ func set_monster_state(active: bool, cooldown_remaining: float = 0.0) -> void:
     monster_active = active
     monster_cooldown_remaining = maxf(cooldown_remaining, 0.0)
     monster_state_changed.emit(monster_active, monster_cooldown_remaining)
+
+## Player owns the flashlight; this mirrors its state for the HUD.
+func set_flashlight_state(enabled: bool, on: bool, charge_remaining: float) -> void:
+    flashlight_enabled = enabled
+    flashlight_on = on
+    flashlight_charge_remaining = maxf(charge_remaining, 0.0)
+    flashlight_changed.emit(flashlight_enabled, flashlight_on, flashlight_charge_remaining)
 
 func has_required_keys() -> bool:
     return keys_collected >= keys_required

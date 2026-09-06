@@ -17,6 +17,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head" unique_id=1513032876]
 
+[node name="Flashlight" type="SpotLight3D" parent="Head/Camera3D" unique_id=1710042911]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, -0.12, 0)
+visible = false
+light_color = Color(1, 0.94, 0.8, 1)
+light_energy = 4.0
+shadow_enabled = true
+spot_range = 28.0
+spot_attenuation = 0.8
+spot_angle = 32.0
+
 [node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D" unique_id=719357871]
 target_position = Vector3(0, 0, -2)
 collide_with_areas = true
@@ -40,6 +50,14 @@ offset_right = 20.0
 offset_bottom = 54.0
 theme_override_font_sizes/font_size = 20
 text = "Monster: active"
+
+[node name="FlashlightLabel" type="Label" parent="HUD" unique_id=1710042912]
+offset_left = 20.0
+offset_top = 88.0
+offset_right = 20.0
+offset_bottom = 88.0
+theme_override_font_sizes/font_size = 20
+text = "Flashlight: 30s"
 
 [node name="MessageLabel" type="Label" parent="HUD" unique_id=264562778]
 anchors_preset = 5

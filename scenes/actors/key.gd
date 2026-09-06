@@ -12,6 +12,18 @@ func _ready() -> void:
     get_tree().root.call_deferred("add_child", ui_instance)
     ui_instance.solved.connect(_on_solved)
     base_y = position.y
+    if GameManager.maze and GameManager.maze.dark_maze:
+        _glow()
+
+func _glow() -> void:
+    var mat := StandardMaterial3D.new()
+    mat.albedo_color = Color(0.4, 0.7, 1.0, 1.0)
+    mat.emission_enabled = true
+    mat.emission = Color(0.3, 0.6, 1.0, 1.0)
+    mat.emission_energy_multiplier = 2.5
+    for child in get_children():
+        if child is MeshInstance3D:
+            child.material_override = mat
 
 func _process(delta: float) -> void:
     time_passed += delta

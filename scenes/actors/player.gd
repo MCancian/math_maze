@@ -72,6 +72,7 @@ func _process(delta: float) -> void:
         return
     flashlight_charge = maxf(flashlight_charge - delta, 0.0)
     if flashlight_charge <= 0.0:
+        AudioManager.play_sfx("flashlight_dead")
         _set_flashlight(false)
         return
     if flashlight_charge < FLASHLIGHT_FLICKER_BELOW:
@@ -85,10 +86,13 @@ func _press_flashlight() -> void:
     if not flashlight_enabled:
         return
     if flashlight_on:
+        AudioManager.play_sfx("flashlight_off")
         _set_flashlight(false)
     elif flashlight_charge > 0.0:
+        AudioManager.play_sfx("flashlight_on")
         _set_flashlight(true)
     else:
+        AudioManager.play_sfx("flashlight_dead")
         set_interacting(true)
         _flashlight_ui.show_problem()
 

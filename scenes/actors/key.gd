@@ -43,5 +43,6 @@ func _on_solved() -> void:
     if player.size() > 0:
         player[0].set_interacting(false)
     GameManager.collect_key()
+    AudioManager.play_sfx("key")
     ui_instance.queue_free()
     queue_free()

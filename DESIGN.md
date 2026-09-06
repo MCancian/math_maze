@@ -56,8 +56,10 @@ api:     reset_run(required), collect_key(), has_required_keys(), win(), lose(),
 `user://save.json`. `unlocked_levels: int`, `best: {level_id: {time, stars}}`,
 `settings`. API: `is_unlocked(id)`, `record_result(id, time, stars)`, `load()/save()`.
 
-### AudioManager (stub)
-Slot reserved; `play_sfx(name)`, `play_music(name)` no-ops for now.
+### AudioManager
+Procedural SFX synthesised to `AudioStreamWAV` at boot (no audio assets).
+`play_sfx(name)`, `get_stream(name)` for positional players, `set_heartbeat(intensity)`.
+`play_music` still a no-op.
 
 > Drop the 170 KB `mcp_interaction_server.gd` autoload from **shipping** builds —
 > it's a dev test harness, not game logic. Stays at repo root for dev use.

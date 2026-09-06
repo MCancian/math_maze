@@ -20,9 +20,8 @@ var _status_emit_timer := 0.0
 var _bee_visual := false
 var _scary_visual := false
 var _sound_enabled := false
-var _sound_playback: AudioStreamGeneratorPlayback
-var _sound_phase := 0.0
-var _pulse_phase := 0.0
+## Heartbeat starts when the monster is closer than this (world units).
+const HEARTBEAT_RANGE := 30.0
 
 @onready var visual: Node3D = $Visual
 @onready var slime_visual: MeshInstance3D = $Visual/Slime
@@ -56,6 +55,8 @@ func _ready() -> void:
 func _exit_tree() -> void:
     if ui_instance and is_instance_valid(ui_instance):
         ui_instance.queue_free()
+    if _sound_enabled:
+        AudioManager.set_heartbeat(0.0)
 
 func _process(delta: float) -> void:
     match state:
@@ -81,7 +82,6 @@ func _activate() -> void:
     monitoring = true
     if _sound_enabled and not hard_sound.playing:
         hard_sound.play()
-        _sound_playback = hard_sound.get_stream_playback() as AudioStreamGeneratorPlayback
     _has_target = false
     GameManager.set_monster_state(true, 0.0)
 
@@ -113,15 +113,15 @@ func _apply_visual_style() -> void:
     slime_visual.visible = not _bee_visual and not _scary_visual
     shadow_visual.visible = _scary_visual
 
+## Positional growl loop (AudioManager "growl"), audible across the maze and
+## louder as it closes in. Heartbeat is non-positional and driven by distance.
 func _setup_hard_sound() -> void:
     if not _sound_enabled:
         return
-    var stream := AudioStreamGenerator.new()
-    stream.mix_rate = 11025.0
-    stream.buffer_length = 0.25
-    hard_sound.stream = stream
-    hard_sound.volume_db = -10.0
-    hard_sound.max_distance = 32.0
+    hard_sound.stream = AudioManager.get_stream("growl")
+    hard_sound.volume_db = 0.0
+    hard_sound.max_distance = 48.0
+    hard_sound.unit_size = 6.0
     hard_sound.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
 
 func _update_hard_sound() -> void:
@@ -129,27 +129,19 @@ func _update_hard_sound() -> void:
         return
     if not hard_sound.playing:
         hard_sound.play()
-        _sound_playback = hard_sound.get_stream_playback() as AudioStreamGeneratorPlayback
-    if _sound_playback == null:
-        return
-    var frames_available := _sound_playback.get_frames_available()
-    var sample_rate := 11025.0
     var player := _player()
-    var proximity := 0.35
     if player:
         var distance := global_position.distance_to(player.global_position)
-        proximity = clampf(1.0 - distance / 36.0, 0.18, 0.85)
-    for i in frames_available:
-        _sound_phase = fmod(_sound_phase + TAU * 58.0 / sample_rate, TAU)
-        _pulse_phase = fmod(_pulse_phase + TAU * 1.7 / sample_rate, TAU)
-        var pulse := pow(maxf(sin(_pulse_phase), 0.0), 6.0)
-        var growl := sin(_sound_phase) * 0.22 + sin(_sound_phase * 0.52) * 0.16
-        var sample := growl * (0.25 + pulse * 0.75) * proximity
-        _sound_playback.push_frame(Vector2(sample, sample))
+        AudioManager.set_heartbeat(heartbeat_intensity(distance))
+
+func heartbeat_intensity(distance: float) -> float:
+    return clampf(1.0 - distance / HEARTBEAT_RANGE, 0.0, 1.0)
 
 func _stop_hard_sound() -> void:
     if _sound_enabled and hard_sound.playing:
         hard_sound.stop()
+    if _sound_enabled:
+        AudioManager.set_heartbeat(0.0)
 
 func _on_body_entered(body: Node3D) -> void:
     if state != State.ACTIVE or not body.is_in_group("player"):
@@ -157,6 +149,8 @@ func _on_body_entered(body: Node3D) -> void:
     state = State.CAUGHT
     caught_player = body
     monitoring = false
+    if _sound_enabled:
+        AudioManager.play_sfx("monster_catch")
     _has_target = false
     GameManager.set_monster_state(false, 0.0)
     body.set_interacting(true)

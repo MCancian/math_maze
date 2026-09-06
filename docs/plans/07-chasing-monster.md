@@ -43,7 +43,7 @@ difficulty, to give those levels tension that the maze layout alone doesn't.
   `4.2`, player uses `5.0`.
 - **Presentation:** Easy uses a friendly Quaternius bee with no sound; Medium keeps the
   Quaternius slime and no sound; Hard uses shadow body, red emissive eyes, and
-  procedural proximity rumble.
+  the AudioManager growl loop + heartbeat (see [12-sound](12-sound.md)).
 - **Wrong answer:** lose one collected key, clamped at zero.
 - **HUD:** active/cooldown indicator visible under the key count.
 

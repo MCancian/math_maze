@@ -16,6 +16,7 @@ func _ready() -> void:
 
 func _run() -> void:
     _test_main_menu_instantiates()
+    _test_audio_manager()
     await _test_math_problem_input()
     _test_key_loss_clamps()
     _test_monster_config_gates()
@@ -45,6 +46,22 @@ func _test_main_menu_instantiates() -> void:
     add_child(main_menu)
     _check(main_menu != null, "main menu should instantiate")
     main_menu.queue_free()
+
+func _test_audio_manager() -> void:
+    for sfx_name in ["correct", "wrong", "key", "door", "flashlight_on", "flashlight_off", "flashlight_dead", "monster_catch", "heartbeat", "growl"]:
+        var stream := AudioManager.get_stream(sfx_name) as AudioStreamWAV
+        _check(stream != null and stream.get_length() > 0.0, "audio manager should synthesise '%s'" % sfx_name)
+        if stream:
+            var peak := 0
+            for i in range(0, stream.data.size(), 2):
+                peak = maxi(peak, absi(stream.data.decode_s16(i)))
+            _check(peak > 3000, "sfx '%s' should not be near-silent (peak %d)" % [sfx_name, peak])
+    var growl := AudioManager.get_stream("growl") as AudioStreamWAV
+    _check(growl != null and growl.loop_mode == AudioStreamWAV.LOOP_FORWARD, "growl should loop")
+    AudioManager.play_sfx("correct")
+    AudioManager.play_sfx("does_not_exist")
+    _check(AudioManager.heartbeat_interval(1.0) < AudioManager.heartbeat_interval(0.0), "heartbeat should speed up with intensity")
+    AudioManager.set_heartbeat(0.0)
 
 func _test_math_problem_input() -> void:
     GameManager.math = ADDITION
@@ -223,6 +240,10 @@ func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual:
         _check(monster.get_node("Visual/Slime").visible == (expected_visual == "slime"), "%s monster slime visibility should match config" % label)
         _check(monster.get_node("Visual/Shadow").visible == (expected_visual == "shadow"), "%s monster shadow visibility should match config" % label)
         _check(monster.get_node("HardSound").playing == expect_sound, "%s monster sound state should match config" % label)
+        if expect_sound:
+            _check(monster.get_node("HardSound").stream == AudioManager.get_stream("growl"), "%s monster should play the growl loop" % label)
+            _check(monster.heartbeat_intensity(1.0) > monster.heartbeat_intensity(20.0), "heartbeat should intensify as the monster nears")
+            _check(is_zero_approx(monster.heartbeat_intensity(100.0)), "heartbeat should be silent when the monster is far")
         if expected_visual == "shadow":
             _check(monster.get_node("Visual/Shadow/LeftEye").position.z > 0.0, "hard monster eyes should be on the front")
             _check(monster.get_node("Visual/Shadow/RightEye").position.z > 0.0, "hard monster eyes should be on the front")

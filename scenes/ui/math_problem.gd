@@ -50,9 +50,11 @@ func _on_answer_text_changed(new_text: String) -> void:
 
 func _check_answer() -> void:
     if _answer_matches(answer_input.text):
+        AudioManager.play_sfx("correct")
         hide()
         solved.emit()
     else:
+        AudioManager.play_sfx("wrong")
         wrong_answer.emit()
         answer_input.text = ""
         question_label.text = "%s\n%s" % [wrong_answer_message, current_question_text]

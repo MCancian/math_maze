@@ -19,6 +19,7 @@ func _on_body_entered(body: Node3D) -> void:
 
 func open_door() -> void:
     is_open = true
+    AudioManager.play_sfx("door")
     var hud = get_tree().get_nodes_in_group("player")[0].get_node_or_null("HUD")
     if hud and hud.has_method("show_message"):
         hud.show_message("Door opened! You Win!")

@@ -27,6 +27,8 @@ The script runs:
 - Medium and Hard mazes are dark: fog on, sun hidden, keys glow, flashlight starts on, F toggles,
   charge drains, dead battery opens a math problem, correct answer refills.
 - Easy maze after a Hard one stays lit (shared Environment not mutated).
+- AudioManager synthesises every named SFX with audible level; growl loops; heartbeat
+  interval shortens with intensity; Hard monster plays the growl stream.
 
 Prefer adding new runtime coverage to `tools/test_runtime.gd` when behavior depends on
 autoloads, scenes, groups, or signals. Keep pure data/persistence checks in

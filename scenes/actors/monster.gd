@@ -17,16 +17,18 @@ var caught_player: Node
 var _target_cell := Vector2i.ZERO
 var _has_target := false
 var _status_emit_timer := 0.0
-var _bee_visual := false
-var _scary_visual := false
 var _sound_enabled := false
+## Which visual scene to show; see VISUAL_DIR. Set from MazeConfig.monster_visual.
+var visual_name: StringName = MazeConfig.DEFAULT_VISUAL
+var _visual_instance: Node3D
 ## Heartbeat starts when the monster is closer than this (world units).
 const HEARTBEAT_RANGE := 30.0
 
+## One scene per creature. Adding a model = drop a scene here and name it in a
+## MazeConfig; no code change needed.
+const VISUAL_DIR := "res://scenes/actors/visuals/%s.tscn"
+
 @onready var visual: Node3D = $Visual
-@onready var slime_visual: MeshInstance3D = $Visual/Slime
-@onready var bee_visual: Node3D = $Visual/Bee
-@onready var shadow_visual: Node3D = $Visual/Shadow
 @onready var hard_sound: AudioStreamPlayer3D = $HardSound
 
 func setup(info: Dictionary, cfg: MazeConfig) -> void:
@@ -36,8 +38,7 @@ func setup(info: Dictionary, cfg: MazeConfig) -> void:
     if cfg:
         speed = cfg.monster_speed
         cooldown_seconds = cfg.monster_cooldown_seconds
-        _bee_visual = cfg.monster_bee_visual
-        _scary_visual = cfg.monster_scary_visual
+        visual_name = cfg.monster_visual
         _sound_enabled = cfg.monster_sound_enabled
 
 func _ready() -> void:
@@ -101,17 +102,32 @@ func _move_toward_player(delta: float) -> void:
     global_position = global_position.move_toward(target, speed * delta)
     if before.distance_squared_to(global_position) > 0.0001:
         look_at(Vector3(target.x, global_position.y, target.z), Vector3.UP, true)
-    visual.position.y = 0.1 + sin(Time.get_ticks_msec() / 160.0) * 0.08
+    _animate_visual(delta, before.distance_squared_to(global_position) > 0.0001)
+
+## A visual scene may define animate(delta, moving); otherwise it just bobs.
+func _animate_visual(delta: float, moving: bool) -> void:
+    if _visual_instance == null:
+        return
+    if _visual_instance.has_method("animate"):
+        _visual_instance.animate(delta, moving)
+    else:
+        _visual_instance.position.y = 0.1 + sin(Time.get_ticks_msec() / 160.0) * 0.08
 
 func _is_at_target() -> bool:
     var target := _cell_world(_target_cell, global_position.y)
     var flat := Vector2(global_position.x - target.x, global_position.z - target.z)
     return flat.length() <= 0.1
 
+## Instantiate the named visual under $Visual, falling back to the default if a
+## config names a scene that is missing.
 func _apply_visual_style() -> void:
-    bee_visual.visible = _bee_visual and not _scary_visual
-    slime_visual.visible = not _bee_visual and not _scary_visual
-    shadow_visual.visible = _scary_visual
+    var path := VISUAL_DIR % visual_name
+    if not ResourceLoader.exists(path):
+        push_warning("Monster visual '%s' not found; using '%s'." % [visual_name, MazeConfig.DEFAULT_VISUAL])
+        visual_name = MazeConfig.DEFAULT_VISUAL
+        path = VISUAL_DIR % visual_name
+    _visual_instance = (load(path) as PackedScene).instantiate()
+    visual.add_child(_visual_instance)
 
 ## Positional growl loop (AudioManager "growl"), audible across the maze and
 ## louder as it closes in. Heartbeat is non-positional and driven by distance.

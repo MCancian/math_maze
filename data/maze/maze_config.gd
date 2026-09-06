@@ -18,9 +18,10 @@ class_name MazeConfig
 ## Player SPEED is 5.0; monster stays slower so escape remains possible.
 @export var monster_speed: float = 3.4
 @export var monster_cooldown_seconds: float = 120.0
-## Presentation knobs: Easy can use a friendly bee; Hard can use shadow + rumble.
-@export var monster_bee_visual: bool = false
-@export var monster_scary_visual: bool = false
+## Presentation knobs. `monster_visual` names a scene in
+## scenes/actors/visuals/<name>.tscn — "slime", "bee", "cat", "shadow".
+const DEFAULT_VISUAL := &"slime"
+@export var monster_visual: StringName = DEFAULT_VISUAL
 @export var monster_sound_enabled: bool = false
 
 ## Darkness: sun off, black fog, player carries a flashlight (F key).

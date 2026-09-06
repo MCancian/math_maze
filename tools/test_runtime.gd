@@ -20,7 +20,7 @@ func _run() -> void:
     await _test_math_problem_input()
     _test_key_loss_clamps()
     _test_monster_config_gates()
-    await _test_monster_runtime(EASY_MAZE, "easy", "bee", false, 2.2)
+    await _test_monster_runtime(EASY_MAZE, "easy", "cat", false, 2.2)
     await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
     await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2)
     _test_dark_maze_config()
@@ -104,15 +104,14 @@ func _test_key_loss_clamps() -> void:
     _check(GameManager.keys_collected == 0, "lose_key should clamp at zero")
 
 func _test_monster_config_gates() -> void:
-    _check(EASY_MAZE.allows_monster(), "easy maze should allow friendly bee monster")
+    _check(EASY_MAZE.allows_monster(), "easy maze should allow friendly cat monster")
     _check(MEDIUM_MAZE.allows_monster(), "medium maze should allow monster")
     _check(HARD_MAZE.allows_monster(), "hard maze should allow monster")
-    _check(EASY_MAZE.monster_bee_visual, "easy monster should use bee visual")
+    _check(EASY_MAZE.monster_visual == &"cat", "easy monster should use the cat visual")
     _check(not EASY_MAZE.monster_sound_enabled, "easy monster should not play sound")
-    _check(not MEDIUM_MAZE.monster_bee_visual, "medium monster should not use bee visual")
-    _check(not MEDIUM_MAZE.monster_scary_visual, "medium monster should keep slime visual")
+    _check(MEDIUM_MAZE.monster_visual == &"slime", "medium monster should keep slime visual")
     _check(not MEDIUM_MAZE.monster_sound_enabled, "medium monster should not play sound")
-    _check(HARD_MAZE.monster_scary_visual, "hard monster should use scary visual")
+    _check(HARD_MAZE.monster_visual == &"shadow", "hard monster should use scary visual")
     _check(HARD_MAZE.monster_sound_enabled, "hard monster should play sound")
     _check(HARD_MAZE.monster_speed > MEDIUM_MAZE.monster_speed, "hard monster should be faster than medium")
 
@@ -236,9 +235,10 @@ func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual:
     if monsters.size() == 1:
         var monster: Node = monsters[0]
         _check(is_equal_approx(monster.speed, expected_speed), "%s monster speed should match config" % label)
-        _check(monster.get_node("Visual/Bee").visible == (expected_visual == "bee"), "%s monster bee visibility should match config" % label)
-        _check(monster.get_node("Visual/Slime").visible == (expected_visual == "slime"), "%s monster slime visibility should match config" % label)
-        _check(monster.get_node("Visual/Shadow").visible == (expected_visual == "shadow"), "%s monster shadow visibility should match config" % label)
+        _check(monster.visual_name == expected_visual, "%s monster visual should match config" % label)
+        var mounted: Node = monster.get_node("Visual")
+        _check(mounted.get_child_count() == 1, "%s monster should mount exactly one visual" % label)
+        _check(mounted.has_node(expected_visual.capitalize()), "%s monster should mount the %s scene" % [label, expected_visual])
         _check(monster.get_node("HardSound").playing == expect_sound, "%s monster sound state should match config" % label)
         if expect_sound:
             _check(monster.get_node("HardSound").stream == AudioManager.get_stream("growl"), "%s monster should play the growl loop" % label)

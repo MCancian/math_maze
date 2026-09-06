@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="ArrayMesh" path="res://assets/monsters/quaternius_slime/slime.obj" id="1_slime"]
+
+[node name="Slime" type="MeshInstance3D"]
+mesh = ExtResource("1_slime")

@@ -23,6 +23,8 @@ class_name MazeConfig
 const DEFAULT_VISUAL := &"slime"
 @export var monster_visual: StringName = DEFAULT_VISUAL
 @export var monster_sound_enabled: bool = false
+## Looping tune from AudioManager while this maze is being played.
+@export var music_track: StringName = &"explore"
 
 ## Darkness: sun off, black fog, player carries a flashlight (F key).
 ## Flashlight drains while on; a dead battery needs a solved math problem to recharge.

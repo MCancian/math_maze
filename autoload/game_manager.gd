@@ -108,6 +108,7 @@ func win() -> void:
     if has_next_level():
         SaveManager.unlock(_next_order())
     level_won.emit()
+    AudioManager.play_music(&"victory")
     await get_tree().create_timer(WIN_DELAY).timeout
     get_tree().change_scene_to_file(WIN_SCENE)
 
@@ -120,23 +121,29 @@ func _next_order() -> int:
 
 func lose() -> void:
     level_lost.emit()
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(LOSE_SCENE)
 
 ## --- Scene flow ---
 
 func goto_menu() -> void:
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(MENU_SCENE)
 
 func goto_new_game() -> void:
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(NEW_GAME_SCENE)
 
 func goto_profile_select() -> void:
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(PROFILE_SELECT_SCENE)
 
 func goto_difficulty_select() -> void:
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(DIFFICULTY_SELECT_SCENE)
 
 func goto_level_select() -> void:
+    AudioManager.play_music(&"menu")
     get_tree().change_scene_to_file(LEVEL_SELECT_SCENE)
 
 ## Continue: load the active profile's saved difficulty and jump into its current level.
@@ -162,6 +169,7 @@ func start_level(math_cfg: MathConfig, maze_cfg: MazeConfig, level_data: LevelDa
     current_level = level_data
     SaveManager.set_current(level_data.unlock_order)
     reset_run(maze_cfg.keys_required)  # tentative; level confirms actual key count on _ready
+    AudioManager.play_music(maze_cfg.music_track)
     pending_scene_path = level_data.scene.resource_path if level_data.scene else GENERATED_SCENE
     get_tree().change_scene_to_file(LOADING_SCENE)
 

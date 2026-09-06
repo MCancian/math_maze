@@ -16,3 +16,4 @@ monster_visual = &"shadow"
 monster_sound_enabled = true
 dark_maze = true
 flashlight_seconds = 30.0
+music_track = &"spooky"

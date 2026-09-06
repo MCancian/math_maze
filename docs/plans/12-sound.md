@@ -38,6 +38,6 @@ Hard monster a growl and heartbeat that can actually be heard.
 
 ## Follow-ups
 
-- Music (`play_music` is still a no-op).
+- ~~Music~~ — shipped in [14-music](14-music.md).
 - Footsteps for the player and monster.
 - A volume setting persisted through `SaveManager`.

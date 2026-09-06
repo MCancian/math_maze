@@ -13,3 +13,4 @@ monster_braid_threshold = 0.0
 monster_speed = 2.2
 monster_cooldown_seconds = 120.0
 monster_visual = &"cat"
+music_track = &"explore"

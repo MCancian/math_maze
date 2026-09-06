@@ -23,6 +23,7 @@ func _run() -> void:
     await _test_monster_runtime(EASY_MAZE, "easy", "cat", false, 2.2)
     await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
     await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2)
+    await _test_music()
     _test_dark_maze_config()
     await _test_dark_maze_runtime()
     await _test_lit_maze_after_dark()
@@ -114,6 +115,59 @@ func _test_monster_config_gates() -> void:
     _check(HARD_MAZE.monster_visual == &"shadow", "hard monster should use scary visual")
     _check(HARD_MAZE.monster_sound_enabled, "hard monster should play sound")
     _check(HARD_MAZE.monster_speed > MEDIUM_MAZE.monster_speed, "hard monster should be faster than medium")
+
+func _test_music() -> void:
+    for track in ["menu", "explore", "spooky", "victory"]:
+        var stream := AudioManager.get_music(track) as AudioStreamWAV
+        _check(stream != null, "music track '%s' should render" % track)
+        if stream == null:
+            continue
+        _check(stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "music '%s' should loop" % track)
+        _check(stream.loop_end == stream.data.size() / 2, "music '%s' should loop over the whole buffer" % track)
+        _check(stream.get_length() > 5.0, "music '%s' should be a real tune, not a blip" % track)
+        var peak := 0
+        for i in range(0, stream.data.size(), 2):
+            peak = maxi(peak, absi(stream.data.decode_s16(i)))
+        _check(peak > 20000, "music '%s' should use its headroom (peak %d)" % [track, peak])
+    _check(AudioManager.get_music("nope") == null, "unknown music track should return null")
+
+    AudioManager.set_music_muted(false)
+    AudioManager.play_music("explore")
+    _check(AudioManager.current_music() == &"explore", "play_music should set the current track")
+    _check(AudioManager.is_music_playing(), "play_music should start playback")
+    var before := AudioManager.get_music("explore")
+    AudioManager.play_music("explore")
+    _check(AudioManager.get_music("explore") == before, "music streams should be cached, not re-rendered")
+
+    AudioManager.set_music_muted(true)
+    _check(not AudioManager.is_music_playing(), "muting should stop the music")
+    AudioManager.set_music_muted(false)
+    _check(AudioManager.is_music_playing(), "unmuting should resume the current track")
+    AudioManager.stop_music()
+    _check(AudioManager.current_music() == &"" and not AudioManager.is_music_playing(), "stop_music should clear the track")
+
+    # Uncached track: the render is threaded, so playback starts a few frames later.
+    AudioManager._music_cache.erase("victory")
+    AudioManager.play_music("victory")
+    var waited := 0
+    while not AudioManager.is_music_playing() and waited < 600:
+        waited += 1
+        await get_tree().process_frame
+    _check(AudioManager.is_music_playing(), "a track that needs rendering should start once the worker finishes")
+    _check(AudioManager._music_cache.has("victory"), "a threaded render should land in the cache")
+    AudioManager.stop_music()
+
+    _check(InputMap.has_action("music_toggle"), "music toggle input action should exist")
+    var mute_bound := false
+    for ev in InputMap.action_get_events("music_toggle"):
+        # M alone is reserved for the future map overlay (plan 08).
+        if ev is InputEventKey and ev.keycode == KEY_M and ev.ctrl_pressed:
+            mute_bound = true
+    _check(mute_bound, "music toggle should be bound to Ctrl+M")
+
+    _check(EASY_MAZE.music_track == &"explore", "easy maze should play the bouncy theme")
+    _check(MEDIUM_MAZE.music_track == &"spooky", "dark medium maze should play the spooky theme")
+    _check(HARD_MAZE.music_track == &"spooky", "dark hard maze should play the spooky theme")
 
 func _test_dark_maze_config() -> void:
     _check(HARD_MAZE.dark_maze, "hard maze should be dark")

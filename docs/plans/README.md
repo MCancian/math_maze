@@ -29,6 +29,8 @@ match its row here. Keep the Active list short; move a row to Shipped when it la
 | 09 | [door-wall-placement](09-door-wall-placement.md) | ✅ Implemented | Fix: put the exit door on the perimeter, flush in an outer wall |
 | 11 | [dark-maze-flashlight](11-dark-maze-flashlight.md) | ✅ Implemented | Medium and Hard mazes go dark; F flashlight drains and recharges by solving math |
 | 12 | [sound](12-sound.md) | ✅ Implemented | Procedural SFX: feedback sounds everywhere, audible growl + heartbeat + catch stinger on Hard |
+| 13 | [monster-visuals](13-monster-visuals.md) | ✅ Implemented | Monster models load by name from one scene each; Easy gets a cat |
+| 14 | [music](14-music.md) | ✅ Implemented | Procedural looping music per screen and maze, threaded render, Ctrl+M mute |
 
 See also the high-level architecture in [`../../DESIGN.md`](../../DESIGN.md) and the
 agent orientation in [`../../AGENTS.md`](../../AGENTS.md).

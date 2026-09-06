@@ -17,7 +17,7 @@ Configs: `addition.tres` (ADD), `multiplication.tres` (MUL), `fractions.tres`
 Controls only the maze. `maze_size` (cells per side → grid `2*(size+3)+1`),
 `braid_factor` (0 = perfect maze, higher = more loops), `keys_required`, plus monster
 spawn/tuning fields (`monster_enabled`, `monster_braid_threshold`, `monster_speed`,
-`monster_cooldown_seconds`, `monster_visual`, `monster_sound_enabled`) and darkness fields (`dark_maze`, `flashlight_seconds`). Read
+`monster_cooldown_seconds`, `monster_visual`, `monster_sound_enabled`, `music_track`) and darkness fields (`dark_maze`, `flashlight_seconds`). Read
 by `LevelBuilder` + `level_generated.gd` via `GameManager.maze`.
 
 `dark_maze` makes `level_generated.gd` hide the sun and add black fog

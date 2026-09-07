@@ -360,6 +360,17 @@ static func _voice(voice: String, hz: float, t: float, length: float) -> float:
             return (sin(phase) + sin(phase * 2.0) * 0.25) * env
         "pad":
             return (sin(phase) * 0.7 + sin(phase * 1.005) * 0.3) * env
+        "drone":
+            # Two detuned saw-ish tones beating against each other, plus a slow
+            # swell: the unsettling bed under the dark-maze tracks.
+            var beat_tone: float = sin(phase) * 0.5 + sin(phase * 1.014) * 0.4 + sin(phase * 2.0) * 0.12
+            return beat_tone * (0.7 + 0.3 * sin(TAU * 0.23 * t)) * env
+        "glass":
+            # Inharmonic partials (2.76, 5.4) read as a music box gone wrong.
+            return (sin(phase) + sin(phase * 2.76) * 0.3 + sin(phase * 5.4) * 0.1) * exp(-t * 2.6) * env
+        "hiss":
+            # Pitchless breath; hz only tilts how much tone bleeds through.
+            return (_noise(t) * 0.8 + sin(phase) * 0.2) * (0.4 + 0.6 * sin(TAU * t / maxf(length, 0.001))) * env
         _:
             return sin(phase) * env
 
@@ -384,6 +395,7 @@ func _build_tracks() -> Dictionary:
         &"menu": _track_menu(),
         &"explore": _track_explore(),
         &"spooky": _track_spooky(),
+        &"dread": _track_dread(),
         &"victory": _track_victory(),
     }
 
@@ -445,32 +457,72 @@ func _track_explore() -> Dictionary:
         ],
     }
 
-## Tiptoe A-minor theme for dark mazes: cartoon-spooky, not frightening.
+## Eerie A-minor theme for the medium dark maze. A detuned drone holds under a
+## sparse music-box line that keeps leaning on the flat second (Bb) and the
+## tritone (Eb) so the harmony never quite settles.
 func _track_spooky() -> Dictionary:
-    var roots := [33, 33, 29, 29, 31, 31, 28, 33]
-    var minors := [true, true, false, false, false, false, true, true]
+    var roots := [33, 33, 32, 32, 33, 33, 28, 33]
+    var drone: Array = [[0.0, 33, 7.7], [8.0, 32, 7.7], [16.0, 33, 7.7], [24.0, 28, 7.7]]
     var bass: Array = []
     var pad: Array = []
     for bar in roots.size():
         var b := bar * 4.0
-        bass += [[b, roots[bar], 0.9], [b + 1.5, roots[bar], 0.4], [b + 2.5, roots[bar] + 7, 0.9]]
-        pad += _chord(b, roots[bar] + 24, minors[bar], 3.6)
+        bass += [[b, roots[bar], 1.2], [b + 2.5, roots[bar] + 12, 0.8]]
+        # Root, minor third, tritone: a diminished colour instead of a triad.
+        pad += [[b, roots[bar] + 24, 3.6], [b, roots[bar] + 27, 3.6], [b, roots[bar] + 30, 3.6]]
     var melody: Array = (
-        _bar(0, [[69, 0.5], [72, 0.5], [74, 1], [-1, 0.5], [76, 1.5]])
-        + _bar(1, [[74, 0.5], [72, 0.5], [69, 1], [-1, 2]])
-        + _bar(2, [[65, 0.5], [69, 0.5], [72, 1], [-1, 0.5], [74, 1.5]])
-        + _bar(3, [[72, 1], [69, 1], [-1, 2]])
-        + _bar(4, [[71, 0.5], [74, 0.5], [76, 1], [-1, 0.5], [79, 1.5]])
-        + _bar(5, [[76, 0.5], [74, 0.5], [71, 1], [-1, 2]])
-        + _bar(6, [[68, 0.5], [71, 0.5], [76, 1], [74, 0.5], [72, 1.5]])
+        _bar(0, [[69, 1], [-1, 1], [72, 1], [-1, 1]])
+        + _bar(1, [[70, 1.5], [69, 0.5], [-1, 2]])
+        + _bar(2, [[76, 1], [75, 1], [-1, 2]])
+        + _bar(3, [[72, 1], [70, 1], [69, 2]])
+        + _bar(4, [[81, 1], [-1, 1], [80, 1], [-1, 1]])
+        + _bar(5, [[77, 1.5], [76, 0.5], [-1, 2]])
+        + _bar(6, [[75, 1], [74, 1], [72, 1], [70, 1]])
         + _bar(7, [[69, 2], [-1, 2]])
     )
     return {
-        "bpm": 104, "beats": 32,
+        "bpm": 84, "beats": 32,
         "parts": [
-            {"voice": "bass", "gain": 0.36, "notes": bass},
-            {"voice": "pad", "gain": 0.1, "notes": pad},
-            {"voice": "bell", "gain": 0.45, "notes": melody},
+            {"voice": "drone", "gain": 0.30, "notes": drone},
+            {"voice": "bass", "gain": 0.26, "notes": bass},
+            {"voice": "pad", "gain": 0.07, "notes": pad},
+            {"voice": "glass", "gain": 0.46, "notes": melody},
+        ],
+    }
+
+## The hard maze: slower, lower and openly menacing. The bass crawls in
+## half-steps, the melody walks a whole-tone scale (no home note to land on) and
+## a breath of noise swells once a bar.
+func _track_dread() -> Dictionary:
+    var roots := [28, 28, 29, 28, 27, 27, 28, 22]
+    var drone: Array = [[0.0, 28, 11.7], [12.0, 27, 11.7], [24.0, 28, 7.7]]
+    var bass: Array = []
+    var pad: Array = []
+    var breath: Array = []
+    for bar in roots.size():
+        var b := bar * 4.0
+        bass += [[b, roots[bar], 1.6], [b + 3.0, roots[bar] + 6, 0.8]]
+        # Root plus its tritone only: hollow, unresolved.
+        pad += [[b, roots[bar] + 24, 3.7], [b, roots[bar] + 30, 3.7]]
+        breath += [[b + 1.0, 300, 2.5]]
+    var melody: Array = (
+        _bar(0, [[-1, 2], [76, 2]])
+        + _bar(1, [[74, 1.5], [72, 2.5]])
+        + _bar(2, [[-1, 1], [70, 1], [68, 2]])
+        + _bar(3, [[66, 3], [-1, 1]])
+        + _bar(4, [[-1, 2], [78, 2]])
+        + _bar(5, [[76, 1], [74, 1], [72, 2]])
+        + _bar(6, [[70, 2], [68, 1], [66, 1]])
+        + _bar(7, [[64, 3], [-1, 1]])
+    )
+    return {
+        "bpm": 58, "beats": 32,
+        "parts": [
+            {"voice": "drone", "gain": 0.34, "notes": drone},
+            {"voice": "bass", "gain": 0.30, "notes": bass},
+            {"voice": "pad", "gain": 0.08, "notes": pad},
+            {"voice": "hiss", "gain": 0.06, "notes": breath},
+            {"voice": "glass", "gain": 0.40, "notes": melody},
         ],
     }
 

@@ -117,7 +117,7 @@ func _test_monster_config_gates() -> void:
     _check(HARD_MAZE.monster_speed > MEDIUM_MAZE.monster_speed, "hard monster should be faster than medium")
 
 func _test_music() -> void:
-    for track in ["menu", "explore", "spooky", "victory"]:
+    for track in ["menu", "explore", "spooky", "dread", "victory"]:
         var stream := AudioManager.get_music(track) as AudioStreamWAV
         _check(stream != null, "music track '%s' should render" % track)
         if stream == null:
@@ -167,7 +167,7 @@ func _test_music() -> void:
 
     _check(EASY_MAZE.music_track == &"explore", "easy maze should play the bouncy theme")
     _check(MEDIUM_MAZE.music_track == &"spooky", "dark medium maze should play the spooky theme")
-    _check(HARD_MAZE.music_track == &"spooky", "dark hard maze should play the spooky theme")
+    _check(HARD_MAZE.music_track == &"dread", "dark hard maze should play the dread theme")
 
 func _test_dark_maze_config() -> void:
     _check(HARD_MAZE.dark_maze, "hard maze should be dark")

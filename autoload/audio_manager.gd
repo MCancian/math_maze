@@ -57,9 +57,6 @@ func _ready() -> void:
     _tracks = _build_tracks()
     _load_settings()
 
-func has_sfx(sfx_name: StringName) -> bool:
-    return _streams.has(sfx_name)
-
 func get_stream(sfx_name: StringName) -> AudioStream:
     return _streams.get(sfx_name)
 
@@ -95,10 +92,9 @@ func stop_music() -> void:
 
 func _start_music() -> void:
     _music.stream = _music_cache[_current_track]
-    _music.volume_db = MUSIC_DB
     _music.play()
 
-func _process_music(_delta: float) -> void:
+func _process_music() -> void:
     if _pending_task != -1:
         if not WorkerThreadPool.is_task_completed(_pending_task):
             return
@@ -161,7 +157,7 @@ func heartbeat_interval(intensity: float) -> float:
     return lerpf(1.3, 0.42, clampf(intensity, 0.0, 1.0))
 
 func _process(delta: float) -> void:
-    _process_music(delta)
+    _process_music()
     _process_heartbeat(delta)
 
 func _process_heartbeat(delta: float) -> void:
@@ -185,12 +181,20 @@ func _free_player() -> AudioStreamPlayer:
 ## Renders fn(t, seconds) -> sample in [-1, 1] into a 16-bit mono WAV.
 func _render(seconds: float, fn: Callable, loop: bool = false) -> AudioStreamWAV:
     var frames := int(seconds * RATE)
+    var samples := PackedFloat32Array()
+    samples.resize(frames)
+    for i in frames:
+        samples[i] = fn.call(float(i) / RATE, seconds)
+    return _pack_wav(samples, loop)
+
+## Packs samples in [-1, 1] into a 16-bit mono WAV, looping over the whole
+## buffer when asked. The single place the loop points are set.
+func _pack_wav(samples: PackedFloat32Array, loop: bool) -> AudioStreamWAV:
+    var frames := samples.size()
     var data := PackedByteArray()
     data.resize(frames * 2)
     for i in frames:
-        var t := float(i) / RATE
-        var s: float = clampf(fn.call(t, seconds), -1.0, 1.0)
-        data.encode_s16(i * 2, int(s * 32767.0))
+        data.encode_s16(i * 2, int(clampf(samples[i], -1.0, 1.0) * 32767.0))
     var wav := AudioStreamWAV.new()
     wav.format = AudioStreamWAV.FORMAT_16_BITS
     wav.mix_rate = RATE
@@ -295,9 +299,6 @@ func _save_settings() -> void:
 const BEATS_PER_BAR := 4
 const MUSIC_PEAK := 0.82
 
-func music_track_names() -> Array:
-    return _tracks.keys()
-
 func _render_music(spec: Dictionary) -> AudioStreamWAV:
     var beat: float = 60.0 / float(spec["bpm"])
     var frames := int(float(spec["beats"]) * beat * RATE)
@@ -312,20 +313,9 @@ func _render_music(spec: Dictionary) -> AudioStreamWAV:
     for v in buf:
         peak = maxf(peak, absf(v))
     var scale: float = (MUSIC_PEAK / peak) if peak > 0.0 else 0.0
-
-    var data := PackedByteArray()
-    data.resize(frames * 2)
     for i in frames:
-        data.encode_s16(i * 2, int(clampf(buf[i] * scale, -1.0, 1.0) * 32767.0))
-    var wav := AudioStreamWAV.new()
-    wav.format = AudioStreamWAV.FORMAT_16_BITS
-    wav.mix_rate = RATE
-    wav.stereo = false
-    wav.data = data
-    wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
-    wav.loop_begin = 0
-    wav.loop_end = frames
-    return wav
+        buf[i] *= scale
+    return _pack_wav(buf, true)
 
 func _write_note(buf: PackedFloat32Array, voice: String, gain: float, hz: float, start_s: float, length_s: float) -> void:
     var start := int(start_s * RATE)
@@ -386,6 +376,15 @@ static func _bar(index: int, pattern: Array) -> Array:
         cursor += float(step[1])
     return out
 
+## Calls fn(bar_index, first_beat_of_bar, root) once per bar and concatenates
+## the note arrays it returns, so a track builder states what it plays instead
+## of re-counting beats.
+static func _per_bar(roots: Array, fn: Callable) -> Array:
+    var out: Array = []
+    for bar in roots.size():
+        out += fn.call(bar, float(bar * BEATS_PER_BAR), int(roots[bar])) as Array
+    return out
+
 static func _chord(beat: float, root: int, minor: bool, length: float) -> Array:
     var third := 3 if minor else 4
     return [[beat, root, length], [beat, root + third, length], [beat, root + 7, length]]
@@ -403,11 +402,10 @@ func _build_tracks() -> Dictionary:
 func _track_menu() -> Dictionary:
     var roots := [36, 33, 29, 31, 36, 33, 29, 31]
     var minors := [false, true, false, false, false, true, false, false]
-    var bass: Array = []
-    var pad: Array = []
-    for bar in roots.size():
-        bass += [[bar * 4.0, roots[bar], 1.8], [bar * 4.0 + 2.0, roots[bar] + 7, 1.8]]
-        pad += _chord(bar * 4.0, roots[bar] + 24, minors[bar], 3.7)
+    var bass: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root, 1.8], [b + 2.0, root + 7, 1.8]])
+    var pad: Array = _per_bar(roots, func(i: int, b: float, root: int) -> Array:
+        return _chord(b, root + 24, minors[i], 3.7))
     var melody: Array = (
         _bar(0, [[72, 2], [76, 1], [74, 1]])
         + _bar(1, [[72, 2], [69, 2]])
@@ -430,14 +428,11 @@ func _track_menu() -> Dictionary:
 ## Bouncy major-key march for lit mazes.
 func _track_explore() -> Dictionary:
     var roots := [36, 41, 43, 36, 36, 41, 43, 36]
-    var bass: Array = []
-    var stabs: Array = []
-    for bar in roots.size():
-        var b := bar * 4.0
-        bass += [[b, roots[bar], 0.45], [b + 1.0, roots[bar], 0.45],
-                 [b + 2.0, roots[bar] + 7, 0.45], [b + 3.0, roots[bar], 0.45]]
-        stabs += _chord(b + 1.5, roots[bar] + 24, false, 0.35)
-        stabs += _chord(b + 3.5, roots[bar] + 24, false, 0.35)
+    var bass: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root, 0.45], [b + 1.0, root, 0.45],
+                [b + 2.0, root + 7, 0.45], [b + 3.0, root, 0.45]])
+    var stabs: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return _chord(b + 1.5, root + 24, false, 0.35) + _chord(b + 3.5, root + 24, false, 0.35))
     var melody: Array = (
         _bar(0, [[72, 0.5], [76, 0.5], [79, 1], [76, 0.5], [72, 0.5], [74, 1]])
         + _bar(1, [[74, 0.5], [77, 0.5], [81, 1], [79, 0.5], [76, 0.5], [72, 1]])
@@ -463,13 +458,11 @@ func _track_explore() -> Dictionary:
 func _track_spooky() -> Dictionary:
     var roots := [33, 33, 32, 32, 33, 33, 28, 33]
     var drone: Array = [[0.0, 33, 7.7], [8.0, 32, 7.7], [16.0, 33, 7.7], [24.0, 28, 7.7]]
-    var bass: Array = []
-    var pad: Array = []
-    for bar in roots.size():
-        var b := bar * 4.0
-        bass += [[b, roots[bar], 1.2], [b + 2.5, roots[bar] + 12, 0.8]]
-        # Root, minor third, tritone: a diminished colour instead of a triad.
-        pad += [[b, roots[bar] + 24, 3.6], [b, roots[bar] + 27, 3.6], [b, roots[bar] + 30, 3.6]]
+    var bass: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root, 1.2], [b + 2.5, root + 12, 0.8]])
+    # Root, minor third, tritone: a diminished colour instead of a triad.
+    var pad: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root + 24, 3.6], [b, root + 27, 3.6], [b, root + 30, 3.6]])
     var melody: Array = (
         _bar(0, [[69, 1], [-1, 1], [72, 1], [-1, 1]])
         + _bar(1, [[70, 1.5], [69, 0.5], [-1, 2]])
@@ -496,15 +489,13 @@ func _track_spooky() -> Dictionary:
 func _track_dread() -> Dictionary:
     var roots := [28, 28, 29, 28, 27, 27, 28, 22]
     var drone: Array = [[0.0, 28, 11.7], [12.0, 27, 11.7], [24.0, 28, 7.7]]
-    var bass: Array = []
-    var pad: Array = []
-    var breath: Array = []
-    for bar in roots.size():
-        var b := bar * 4.0
-        bass += [[b, roots[bar], 1.6], [b + 3.0, roots[bar] + 6, 0.8]]
-        # Root plus its tritone only: hollow, unresolved.
-        pad += [[b, roots[bar] + 24, 3.7], [b, roots[bar] + 30, 3.7]]
-        breath += [[b + 1.0, 300, 2.5]]
+    var bass: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root, 1.6], [b + 3.0, root + 6, 0.8]])
+    # Root plus its tritone only: hollow, unresolved.
+    var pad: Array = _per_bar(roots, func(_i: int, b: float, root: int) -> Array:
+        return [[b, root + 24, 3.7], [b, root + 30, 3.7]])
+    var breath: Array = _per_bar(roots, func(_i: int, b: float, _root: int) -> Array:
+        return [[b + 1.0, 300, 2.5]])
     var melody: Array = (
         _bar(0, [[-1, 2], [76, 2]])
         + _bar(1, [[74, 1.5], [72, 2.5]])

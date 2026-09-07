@@ -1,4 +1,11 @@
 extends Node
+## Runtime gameplay checks, run as a scene (autoloads, groups, signals all live).
+##
+## Run through tools/gate.sh (which isolates user:// via MM_USER_DIR). Direct:
+##   godot --headless --path . res://tools/test_runtime.tscn [-- --test=<_test_name>]
+## Each test in _tests() runs standalone (own setup, no reliance on an earlier test). A failure
+## prints `FAIL: <test>: <message>` on stdout; the finish line is
+## `Runtime gameplay tests: N failure(s)`; exit 0/1; an unknown --test name exits 2.
 
 const GENERATED_LEVEL := preload("res://scenes/levels/level_generated.tscn")
 const MATH_UI := preload("res://scenes/ui/math_problem.tscn")
@@ -10,37 +17,57 @@ const HARD_MAZE := preload("res://data/maze/maze_hard.tres")
 const GEN_05 := preload("res://data/levels/gen_05.tres")
 
 var _failures: Array[String] = []
+var _current := ""
+
+## Name -> Callable, in run order. Names must be unique across both harnesses.
+func _tests() -> Dictionary:
+    return {
+        "_test_main_menu_instantiates": _test_main_menu_instantiates,
+        "_test_audio_manager": _test_audio_manager,
+        "_test_math_problem_input": _test_math_problem_input,
+        "_test_key_loss_clamps": _test_key_loss_clamps,
+        "_test_monster_config_gates": _test_monster_config_gates,
+        "_test_monster_runtime_easy": func() -> void: await _test_monster_runtime(EASY_MAZE, "easy", "cat", false, 2.2),
+        "_test_monster_runtime_medium": func() -> void: await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0),
+        "_test_monster_runtime_hard": func() -> void: await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2),
+        "_test_music": _test_music,
+        "_test_dark_maze_config": _test_dark_maze_config,
+        "_test_dark_maze_runtime": _test_dark_maze_runtime,
+        "_test_lit_maze_after_dark": _test_lit_maze_after_dark,
+    }
 
 func _ready() -> void:
     await _run()
 
 func _run() -> void:
-    _test_main_menu_instantiates()
-    _test_audio_manager()
-    await _test_math_problem_input()
-    _test_key_loss_clamps()
-    _test_monster_config_gates()
-    await _test_monster_runtime(EASY_MAZE, "easy", "cat", false, 2.2)
-    await _test_monster_runtime(MEDIUM_MAZE, "medium", "slime", false, 3.0)
-    await _test_monster_runtime(HARD_MAZE, "hard", "shadow", true, 4.2)
-    await _test_music()
-    _test_dark_maze_config()
-    await _test_dark_maze_runtime()
-    await _test_lit_maze_after_dark()
+    var tests := _tests()
+    var only := _requested_test()
+    if only != "" and not tests.has(only):
+        print("no test named '%s' in tools/test_runtime.gd" % only)
+        get_tree().quit(2)
+        return
+    for test_name in tests:
+        if only != "" and test_name != only:
+            continue
+        _current = test_name
+        await tests[test_name].call()
     _finish()
+
+func _requested_test() -> String:
+    for arg in OS.get_cmdline_user_args():
+        if arg.begins_with("--test="):
+            return arg.trim_prefix("--test=")
+    return ""
 
 func _check(condition: bool, message: String) -> void:
     if not condition:
         _failures.append(message)
+        print("FAIL: %s: %s" % [_current, message])
+        push_error("%s: %s" % [_current, message])
 
 func _finish() -> void:
-    if _failures.is_empty():
-        print("Runtime gameplay tests passed")
-        get_tree().quit(0)
-        return
-    for failure in _failures:
-        push_error(failure)
-    get_tree().quit(1)
+    print("Runtime gameplay tests: %d failure(s)" % _failures.size())
+    get_tree().quit(0 if _failures.is_empty() else 1)
 
 func _test_main_menu_instantiates() -> void:
     var main_menu := MAIN_MENU.instantiate()
@@ -160,7 +187,7 @@ func _test_music() -> void:
     _check(InputMap.has_action("music_toggle"), "music toggle input action should exist")
     var mute_bound := false
     for ev in InputMap.action_get_events("music_toggle"):
-        # M alone is reserved for the future map overlay (plan 08).
+        # M alone is reserved for the map overlay (milestone map-overlay).
         if ev is InputEventKey and ev.keycode == KEY_M and ev.ctrl_pressed:
             mute_bound = true
     _check(mute_bound, "music toggle should be bound to Ctrl+M")
@@ -260,7 +287,10 @@ func _test_dark_maze_runtime() -> void:
 
     await _despawn_level(level)
 
+## Standalone: spawns a dark level first, so the shared Environment has been through _apply_darkness.
 func _test_lit_maze_after_dark() -> void:
+    var dark: Node = await _spawn_level(HARD_MAZE)
+    await _despawn_level(dark)
     var level: Node = await _spawn_level(EASY_MAZE)
     var env: Environment = level.get_node("WorldEnvironment").environment
     _check(not env.fog_enabled, "lit maze after a dark one should have no fog (shared Environment must not be mutated)")
@@ -273,16 +303,7 @@ func _test_lit_maze_after_dark() -> void:
     await _despawn_level(level)
 
 func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual: String, expect_sound: bool, expected_speed: float) -> void:
-    GameManager.current_level = GEN_05
-    GameManager.maze = maze_cfg
-    GameManager.math = ADDITION
-    GameManager.reset_run(1)
-
-    var level := GENERATED_LEVEL.instantiate()
-    add_child(level)
-    await get_tree().process_frame
-    await get_tree().process_frame
-    await get_tree().process_frame
+    var level: Node = await _spawn_level(maze_cfg)
 
     var monsters := get_tree().get_nodes_in_group("monster")
     _check(monsters.size() == 1, "%s maze should spawn exactly one monster" % label)
@@ -305,7 +326,4 @@ func _test_monster_runtime(maze_cfg: MazeConfig, label: String, expected_visual:
             var material := body.material_override as StandardMaterial3D
             _check(material != null and material.albedo_color.a < 1.0, "hard monster shadow should be transparent")
 
-    remove_child(level)
-    level.queue_free()
-    await get_tree().process_frame
-    await get_tree().process_frame
+    await _despawn_level(level)

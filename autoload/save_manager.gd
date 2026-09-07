@@ -4,7 +4,9 @@ extends Node
 ## to resume, and a per-level best record (time + stars). Stars accumulate toward
 ## a future spend system (upgrades, etc.).
 
-const SAVE_PATH := "user://save.json"
+const UserDir := preload("res://autoload/user_dir.gd")
+## user://save.json, or MM_USER_DIR/save.json when that variable is set (the gate, review sandboxes).
+var save_path: String = UserDir.file("save.json")
 const NUM_SLOTS := 3
 
 ## Fixed-size array; each entry is a profile Dictionary or null (empty slot).
@@ -147,9 +149,9 @@ func record_result(level_id: StringName, time: float, stars: int) -> void:
 func load_game() -> void:
     profiles = [null, null, null]
     active_slot = -1
-    if not FileAccess.file_exists(SAVE_PATH):
+    if not FileAccess.file_exists(save_path):
         return
-    var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
+    var f := FileAccess.open(save_path, FileAccess.READ)
     if f == null:
         return
     var text := f.get_as_text()
@@ -166,7 +168,7 @@ func load_game() -> void:
         active_slot = a
 
 func save_game() -> void:
-    var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+    var f := FileAccess.open(save_path, FileAccess.WRITE)
     if f == null:
         return
     f.store_string(JSON.stringify({"active": active_slot, "profiles": profiles}))

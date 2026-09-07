@@ -1,0 +1,53 @@
+# revue config for math_maze. Doc of record for the keys: `revue --help`, README in MCancian/revue.
+# math_maze's half — routes, disposition, caps — is .claude/REVIEWERS.md.
+round_root = "~/.cache/math_maze-rounds"
+gate = "tools/gate.sh"
+# Quoted VERBATIM into every execution preamble in place of revue's default (pytest-shaped) recipe.
+gate_targeted = """
+  one test:   tools/gate.sh <_test_name>        e.g. tools/gate.sh _test_music
+  full:       tools/gate.sh
+  Failures print `FAIL: <_test_name>: <message>` on stdout; the last line is `gate: GREEN|RED`.
+  Test names are the keys of `_tests()` in tools/test_runtime.gd and tools/test_save_and_level.gd.
+  The gate isolates user:// by itself (MM_USER_DIR); never run godot by hand against a save.
+"""
+failing_test_re = '^FAIL:\s+([^:\s]+):'
+# The full gate is ~2 min of ONE headless Godot at a time; two at once do not thrash this box.
+gate_exclusive = false
+context = "Solo hobby Godot 4 game for grade-school kids: one author, one machine, no deployment, no network, no adversary. A finding reachable only by deliberate obfuscation or a hostile save file is out of scope."
+# Forced to an EMPTY decoy dir in every reviewer sandbox. The GAME honours it (autoload/user_dir.gd):
+# save.json and settings.cfg land there, so a seat running godot by hand (not through the gate)
+# still cannot reach the live saves. XDG_DATA_HOME would NOT work: ~/.local/bin/godot is the
+# flatpak and its sandbox overrides that variable (measured 2026-09-07).
+decoy_env = "MM_USER_DIR"
+safety_invariant = "write nothing outside this repo clone, the gate's own temp dir, and revue's round cache; never unset or repoint MM_USER_DIR (the live saves live under ~/.var/app/org.godotengine.Godot)"
+# USER 2026-09-07: a fully trailered `Review-fix:` batch this size or smaller clears without a re-sweep.
+clearance = { max_fix_lines = 40 }
+
+[labels]
+risk = "risk-bearing"            # PR label, applied by USER only
+skip = ["quick", "docs-only"]
+stage2_label = ""                # stage 2 is owed on `labels.risk`, not on a second label
+
+[roles]
+always = ["independent-derivation", "reproduction"]          # USER 2026-09-07: every PR is light
+risk = ["coverage-analysis", "adversarial-analysis", "adversarial-probes", "mutation"]
+path_rules = []
+# Disabled on purpose: `always` IS the light set. A light rule confined to a path list would make
+# a PR touching one file outside it silently HEAVIER (and `plan --full` would seat the wrong set).
+light = { confined_to = [], roles = [] }
+# revue's default shape plus design/: a prose-only range cannot cover `mutation`, so it is dropped.
+# The light pair is never dropped.
+no_code = { confined_to = ["*.md", "design/", "=LICENSE"], drop = ["mutation"] }
+stage2 = "cold-read"
+
+[defaults]
+# USER 2026-09-07: the implementer's own family on every stage-1 seat, accepted knowingly.
+seats = { "*" = "claude" }
+fallback = "claude:sonnet"
+# stage2 unset: revue ships the `pi` cold reader as its default, so the id lives upstream only.
+
+[backends]
+# Declared here or nowhere: an undeclared backend gets NO concurrency bound. The lock dir is
+# machine-wide, shared with every revue repo on this box.
+claude = { concurrency = 3, timeout_min = 25 }
+pi = { concurrency = 2, timeout_min = 35 }

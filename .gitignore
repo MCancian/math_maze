@@ -13,3 +13,6 @@ assets/monsters/zombie*
 .DS_Store
 Thumbs.db
 *~
+
+# Session-worktree marker written by tools/session_worktree.sh (the branch this tree claims; tools/gate.sh reads it)
+.mm-session

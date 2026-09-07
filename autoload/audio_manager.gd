@@ -20,7 +20,9 @@ var _heartbeat_timer := 0.0
 
 ## Music sits well under the sfx so problem prompts stay audible.
 const MUSIC_DB := -11.0
-const SETTINGS_PATH := "user://settings.cfg"
+const UserDir := preload("res://autoload/user_dir.gd")
+## user://settings.cfg, or MM_USER_DIR/settings.cfg when that variable is set (the gate, review sandboxes).
+var settings_path: String = UserDir.file("settings.cfg")
 
 var music_muted := false
 var _music: AudioStreamPlayer
@@ -115,6 +117,13 @@ func _process_music() -> void:
 ## Runs on a worker thread; only reads _tracks and writes thread-local buffers.
 func _render_pending() -> void:
     _pending_stream = _render_music(_tracks[_pending_track])
+
+## A quit while a render is in flight would free this node under the worker
+## ("Nonexistent function '_write_note' in base 'previously freed'"); wait for it.
+func _exit_tree() -> void:
+    if _pending_task != -1:
+        WorkerThreadPool.wait_for_task_completion(_pending_task)
+        _pending_task = -1
 
 ## Renders on first request and caches; null if the name is unknown.
 func get_music(track_name: StringName) -> AudioStreamWAV:
@@ -279,15 +288,15 @@ func _sfx_growl(t: float, len: float) -> float:
 
 func _load_settings() -> void:
     var cfg := ConfigFile.new()
-    if cfg.load(SETTINGS_PATH) != OK:
+    if cfg.load(settings_path) != OK:
         return
     music_muted = bool(cfg.get_value("audio", "music_muted", false))
 
 func _save_settings() -> void:
     var cfg := ConfigFile.new()
-    cfg.load(SETTINGS_PATH)
+    cfg.load(settings_path)
     cfg.set_value("audio", "music_muted", music_muted)
-    cfg.save(SETTINGS_PATH)
+    cfg.save(settings_path)
 
 ## --- music synthesis -----------------------------------------------------
 ##

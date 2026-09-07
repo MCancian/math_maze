@@ -1,4 +1,5 @@
 extends Node
+# probe: throwaway comment for the bootstrap route check (2026-09-07)
 ## Run-state + scene-flow spine. Everything talks to this instead of each other.
 
 signal keys_changed(collected: int, required: int)
